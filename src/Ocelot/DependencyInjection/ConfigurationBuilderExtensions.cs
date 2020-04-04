@@ -70,10 +70,10 @@ namespace Ocelot.DependencyInjection
                 .Where(fi => reg.IsMatch(fi.Name) && fi.Name != excludeConfigName)
                 .ToArray();
 
-            dynamic fileConfiguration = new ExpandoObject();
-            fileConfiguration.GlobalConfiguration = new ExpandoObject();
-            fileConfiguration.Aggregates = new List<object>();
-            fileConfiguration.ReRoutes = new List<object>();
+            dynamic fileConfiguration = new JObject();
+            fileConfiguration.GlobalConfiguration = new JObject();
+            fileConfiguration.Aggregates = new JArray();
+            fileConfiguration.ReRoutes = new JArray();
 
             foreach (var file in files)
             {
@@ -83,8 +83,7 @@ namespace Ocelot.DependencyInjection
                 }
 
                 var lines = File.ReadAllText(file.FullName);
-
-                dynamic config = JsonConvert.DeserializeObject<ExpandoObject>(lines);
+                dynamic config = JToken.Parse(lines);
 
                 if (file.Name.Equals(GlobalConfigFile, StringComparison.OrdinalIgnoreCase))
                 {
@@ -114,25 +113,22 @@ namespace Ocelot.DependencyInjection
             return builder.AddJsonFile(PrimaryConfigFile, false, false);
         }
 
-        private static void TryAddSection(ExpandoObject mergedConfig, ExpandoObject config, string sectionName)
+        private static void TryAddSection(JToken mergedConfig, JToken config, string sectionName)
         {
-            var configAsDict = config as IDictionary<string, object>;
-            var mergedConfigAsDict = mergedConfig as IDictionary<string, object>;
-            if (configAsDict.ContainsKey(sectionName) && mergedConfigAsDict.ContainsKey(sectionName))
-            {
-                var mergedSectionAsExpando = mergedConfigAsDict[sectionName] as ExpandoObject;
-                if (mergedSectionAsExpando != null)
-                {
-                    mergedConfigAsDict[sectionName] = configAsDict[sectionName];                    
-                }
-                else
-                {
-                    var mergedSectionAsList = mergedConfigAsDict[sectionName] as List<object>;
-                    var sectionAsList = configAsDict[sectionName] as List<object>;
+            var mergedConfigSection = mergedConfig[sectionName];
+            var configSection = config[sectionName];
 
-                    mergedSectionAsList.AddRange(sectionAsList);
+            if (configSection != null)
+            {
+                if (configSection is JObject)
+                {
+                    mergedConfig[sectionName] = configSection;
                 }
-            }
-        }
+                else if (configSection is JArray)
+                {
+                    (mergedConfigSection as JArray).Merge(configSection);
+                }
+            }            
+        }        
     }
 }
