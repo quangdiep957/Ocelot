@@ -84,14 +84,9 @@ namespace Ocelot.DependencyInjection
 
                 var lines = File.ReadAllText(file.FullName);
                 dynamic config = JToken.Parse(lines);
+                var isGlobal = file.Name.Equals(globalConfigFile, StringComparison.OrdinalIgnoreCase);
 
-                if (file.Name.Equals(GlobalConfigFile, StringComparison.OrdinalIgnoreCase))
-                {
-                    TryAddSection(fileConfiguration, config, nameof(FileConfiguration.GlobalConfiguration));
-                }
-
-                TryAddSection(fileConfiguration, config, nameof(FileConfiguration.Aggregates));
-                TryAddSection(fileConfiguration, config, nameof(FileConfiguration.ReRoutes));
+                MergeConfig(fileConfiguration, config, isGlobal);                
             }
 
             return builder.AddOcelot(fileConfiguration);
@@ -113,20 +108,31 @@ namespace Ocelot.DependencyInjection
             return builder.AddJsonFile(PrimaryConfigFile, false, false);
         }
 
-        private static void TryAddSection(JToken mergedConfig, JToken config, string sectionName)
+        private static void MergeConfig(JToken destConfig, JToken srcConfig, bool isGlobal)
         {
-            var mergedConfigSection = mergedConfig[sectionName];
-            var configSection = config[sectionName];
-
-            if (configSection != null)
+            if (isGlobal)
             {
-                if (configSection is JObject)
+                MergeConfigSection(destConfig, srcConfig, nameof(FileConfiguration.GlobalConfiguration));
+            }
+
+            MergeConfigSection(destConfig, srcConfig, nameof(FileConfiguration.Aggregates));
+            MergeConfigSection(destConfig, srcConfig, nameof(FileConfiguration.ReRoutes));
+        }
+
+        private static void MergeConfigSection(JToken destConfig, JToken srcConfig, string sectionName)
+        {
+            var destConfigSection = destConfig[sectionName];
+            var srcConfigSection = srcConfig[sectionName];
+
+            if (srcConfigSection != null)
+            {
+                if (srcConfigSection is JObject)
                 {
-                    mergedConfig[sectionName] = configSection;
+                    destConfig[sectionName] = srcConfigSection;
                 }
-                else if (configSection is JArray)
+                else if (srcConfigSection is JArray)
                 {
-                    (mergedConfigSection as JArray).Merge(configSection);
+                    (destConfigSection as JArray).Merge(srcConfigSection);
                 }
             }            
         }        
