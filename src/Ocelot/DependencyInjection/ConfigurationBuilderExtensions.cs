@@ -1,24 +1,25 @@
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
+using Newtonsoft.Json;
+using Ocelot.Configuration.File;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-using Ocelot.Configuration.File;
-
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
-
-using Newtonsoft.Json;
-
 namespace Ocelot.DependencyInjection
 {
     public static class ConfigurationBuilderExtensions
     {
+        private static readonly Regex _reg = new Regex(@"^ocelot\.(.*?)\.json$", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+
         [Obsolete("Please set BaseUrl in ocelot.json GlobalConfiguration.BaseUrl")]
         public static IConfigurationBuilder AddOcelotBaseUrl(this IConfigurationBuilder builder, string baseUrl)
         {
+            Regex.CacheSize += 100;
+
             var memorySource = new MemoryConfigurationSource
             {
                 InitialData = new List<KeyValuePair<string, string>>
@@ -39,19 +40,18 @@ namespace Ocelot.DependencyInjection
 
         public static IConfigurationBuilder AddOcelot(this IConfigurationBuilder builder, string folder, IWebHostEnvironment env)
         {
+            Regex.CacheSize += 100;
+
             const string primaryConfigFile = "ocelot.json";
 
             const string globalConfigFile = "ocelot.global.json";
 
-            const string subConfigPattern = @"^ocelot\.(.*?)\.json$";
 
             var excludeConfigName = env?.EnvironmentName != null ? $"ocelot.{env.EnvironmentName}.json" : string.Empty;
 
-            var reg = new Regex(subConfigPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
             var files = new DirectoryInfo(folder)
                 .EnumerateFiles()
-                .Where(fi => reg.IsMatch(fi.Name) && (fi.Name != excludeConfigName))
+                .Where(fi => _reg.IsMatch(fi.Name) && (fi.Name != excludeConfigName))
                 .ToArray();
 
             var fileConfiguration = new FileConfiguration();
