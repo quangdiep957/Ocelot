@@ -8,6 +8,7 @@ using Ocelot.Request.Middleware;
 using Ocelot.Responses;
 using Ocelot.Values;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -18,12 +19,13 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly IDownstreamPathPlaceholderReplacer _replacer;
+        private static ConcurrentDictionary<string, Regex> _regex = new ConcurrentDictionary<string, Regex>();
 
         public DownstreamUrlCreatorMiddleware(RequestDelegate next,
             IOcelotLoggerFactory loggerFactory,
             IDownstreamPathPlaceholderReplacer replacer
-            )
-                : base(loggerFactory.CreateLogger<DownstreamUrlCreatorMiddleware>())
+        )
+            : base(loggerFactory.CreateLogger<DownstreamUrlCreatorMiddleware>())
         {
             _next = next;
             _replacer = replacer;
@@ -58,7 +60,8 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
 
             if (ServiceFabricRequest(internalConfiguration, downstreamRoute))
             {
-                var pathAndQuery = CreateServiceFabricUri(downstreamRequest, downstreamRoute, templatePlaceholderNameAndValues, response);
+                var pathAndQuery = CreateServiceFabricUri(downstreamRequest, downstreamRoute,
+                    templatePlaceholderNameAndValues, response);
 
                 //todo check this works again hope there is a test..
                 downstreamRequest.AbsolutePath = pathAndQuery.Path;
@@ -83,7 +86,8 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
                 }
                 else
                 {
-                    RemoveQueryStringParametersThatHaveBeenUsedInTemplate(downstreamRequest, templatePlaceholderNameAndValues);
+                    RemoveQueryStringParametersThatHaveBeenUsedInTemplate(downstreamRequest,
+                        templatePlaceholderNameAndValues);
 
                     downstreamRequest.AbsolutePath = dsPath.Value;
                 }
@@ -94,7 +98,8 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
             await _next.Invoke(httpContext);
         }
 
-        private static void RemoveQueryStringParametersThatHaveBeenUsedInTemplate(DownstreamRequest downstreamRequest, List<PlaceholderNameAndValue> templatePlaceholderNameAndValues)
+        private static void RemoveQueryStringParametersThatHaveBeenUsedInTemplate(
+            DownstreamRequest downstreamRequest, List<PlaceholderNameAndValue> templatePlaceholderNameAndValues)
         {
             foreach (var nAndV in templatePlaceholderNameAndValues)
             {
@@ -106,9 +111,12 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
                     var questionMarkOrAmpersand = downstreamRequest.Query.IndexOf(name, StringComparison.Ordinal);
                     downstreamRequest.Query = downstreamRequest.Query.Remove(questionMarkOrAmpersand - 1, 1);
 
-                    var rgx = new Regex($@"\b{name}={nAndV.Value}\b", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+                    var pattern = $@"\b{name}={nAndV.Value}\b";
+                    var regex = _regex.AddOrUpdate(pattern,
+                        new Regex(pattern, RegexOptions.Compiled, TimeSpan.FromMilliseconds(100)),
+                        (key, oldValue) => oldValue);
 
-                    downstreamRequest.Query = rgx.Replace(downstreamRequest.Query, string.Empty);
+                    downstreamRequest.Query = regex.Replace(downstreamRequest.Query, string.Empty);
 
                     if (!string.IsNullOrEmpty(downstreamRequest.Query))
                     {
@@ -133,7 +141,9 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
             return dsPath.Value.Contains('?');
         }
 
-        private (string Path, string Query) CreateServiceFabricUri(DownstreamRequest downstreamRequest, DownstreamRoute downstreamRoute, List<PlaceholderNameAndValue> templatePlaceholderNameAndValues, Response<DownstreamPath> dsPath)
+        private (string Path, string Query) CreateServiceFabricUri(DownstreamRequest downstreamRequest,
+            DownstreamRoute downstreamRoute, List<PlaceholderNameAndValue> templatePlaceholderNameAndValues,
+            Response<DownstreamPath> dsPath)
         {
             var query = downstreamRequest.Query;
             var serviceName = _replacer.Replace(downstreamRoute.ServiceName, templatePlaceholderNameAndValues);
@@ -143,7 +153,8 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
 
         private static bool ServiceFabricRequest(IInternalConfiguration config, DownstreamRoute downstreamRoute)
         {
-            return config.ServiceProviderConfiguration.Type?.ToLower() == "servicefabric" && downstreamRoute.UseServiceDiscovery;
+            return config.ServiceProviderConfiguration.Type?.ToLower() == "servicefabric" &&
+                   downstreamRoute.UseServiceDiscovery;
         }
     }
 }
