@@ -109,7 +109,6 @@ namespace Ocelot.DependencyInjection
             Services.TryAddSingleton<IFileConfigurationRepository, DiskFileConfigurationRepository>();
             Services.TryAddSingleton<IFileConfigurationSetter, FileAndInternalConfigurationSetter>();
             Services.TryAddSingleton<IServiceDiscoveryProviderFactory, ServiceDiscoveryProviderFactory>();
-            Services.TryAddSingleton<IStickySessionStorage, InMemoryStickySessionStorage>();
             Services.AddSingleton<ILoadBalancerCreator, NoLoadBalancerCreator>();
             Services.AddSingleton<ILoadBalancerCreator, RoundRobinCreator>();
             Services.AddSingleton<ILoadBalancerCreator, CookieStickySessionsCreator>();
@@ -209,6 +208,7 @@ namespace Ocelot.DependencyInjection
                 loadBalancerFactoryFunc());
             return this;
         }
+        
         public IOcelotBuilder AddCustomLoadBalancer<T>(Func<IServiceProvider, T> loadBalancerFactoryFunc) 
             where T : ILoadBalancer
         {

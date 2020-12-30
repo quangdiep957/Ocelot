@@ -20,8 +20,7 @@ namespace Ocelot.UnitTests.LoadBalancer
 
         public CookieStickySessionsCreatorTests()
         {
-            var sessionStorage = new InMemoryStickySessionStorage();
-            _creator = new CookieStickySessionsCreator(sessionStorage);
+            _creator = new CookieStickySessionsCreator();
             _serviceProvider = new Mock<IServiceDiscoveryProvider>();
         }
 
