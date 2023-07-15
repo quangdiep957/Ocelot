@@ -10,9 +10,7 @@ namespace Ocelot.Configuration.File
         public string UpstreamHost { get; set; }
         public bool RouteIsCaseSensitive { get; set; }
         public string Aggregator { get; set; }
-        public List<string> UpstreamHttpMethod
-        { get; private set; } = new List<string>();
-
+        public List<string> UpstreamHttpMethod { get; set; } = new();
         public int Priority { get; set; } = 1;
     }
 }
