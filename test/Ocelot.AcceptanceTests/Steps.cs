@@ -819,7 +819,7 @@ namespace Ocelot.AcceptanceTests
         }
         
         /// <summary>
-        /// This is annoying cos it should be in the constructor but we need to set up the file before calling startup so its a step.
+        /// This is annoying because it should be in the constructor, but we need to set up the file before calling startup, so that's the step.
         /// </summary>
         public void GivenOcelotIsRunningWithJwtAuth(string authenticationProviderKey)
         {
