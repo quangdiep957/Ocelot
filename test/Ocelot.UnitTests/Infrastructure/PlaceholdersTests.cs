@@ -1,18 +1,24 @@
+using System;
+using System.Net;
+using System.Net.Http;
+
+using Microsoft.AspNetCore.Http;
+
+using Moq;
+
+using Ocelot.Infrastructure;
+using Ocelot.Infrastructure.RequestData;
+using Ocelot.Middleware;
+using Ocelot.Request.Middleware;
+
+using Ocelot.Responses;
+
+using Shouldly;
+
+using Xunit;
+
 namespace Ocelot.UnitTests.Infrastructure
 {
-    using Microsoft.AspNetCore.Http;
-    using Moq;
-    using Ocelot.Infrastructure;
-    using Ocelot.Infrastructure.RequestData;
-    using Ocelot.Middleware;
-    using Ocelot.Request.Middleware;
-    using Ocelot.Responses;
-    using Shouldly;
-    using System;
-    using System.Net;
-    using System.Net.Http;
-    using Xunit;
-
     public class PlaceholdersTests
     {
         private readonly IPlaceholders _placeholders;
@@ -40,7 +46,7 @@ namespace Ocelot.UnitTests.Infrastructure
         [Fact]
         public void should_return_remote_ip_address()
         {
-            var httpContext = new DefaultHttpContext() { Connection = { RemoteIpAddress = IPAddress.Any } };
+            var httpContext = new DefaultHttpContext { Connection = { RemoteIpAddress = IPAddress.Any } };
             _accessor.Setup(x => x.HttpContext).Returns(httpContext);
             var result = _placeholders.Get("{RemoteIpAddress}");
             result.Data.ShouldBe(httpContext.Connection.RemoteIpAddress.ToString());
@@ -122,6 +128,34 @@ namespace Ocelot.UnitTests.Infrastructure
             var result = _placeholders.Remove("{Test}");
             result.IsError.ShouldBeTrue();
             result.Errors[0].Message.ShouldBe("Unable to remove placeholder: {Test}, placeholder does not exists");
+        }
+
+        [Fact]
+        public void should_return_upstreamHost()
+        {
+            var upstreamHost = "UpstreamHostA";
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Headers.Add("Host", upstreamHost);
+            _accessor.Setup(x => x.HttpContext).Returns(httpContext);
+            var result = _placeholders.Get("{UpstreamHost}");
+            result.Data.ShouldBe(upstreamHost);
+        }
+
+        [Fact]
+        public void should_return_error_when_finding_upstbecause_Host_not_set()
+        {
+            var httpContext = new DefaultHttpContext();
+            _accessor.Setup(x => x.HttpContext).Returns(httpContext);
+            var result = _placeholders.Get("{UpstreamHost}");
+            result.IsError.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void should_return_error_when_finding_upstream_host_because_exception_thrown()
+        {
+            _accessor.Setup(x => x.HttpContext).Throws(new Exception());
+            var result = _placeholders.Get("{UpstreamHost}");
+            result.IsError.ShouldBeTrue();
         }
     }
 }

@@ -1,9 +1,9 @@
+using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+
 namespace Ocelot.Request.Middleware
 {
-    using System;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-
     public class DownstreamRequest
     {
         private readonly HttpRequestMessage _request;
@@ -48,10 +48,11 @@ namespace Ocelot.Request.Middleware
                 Host = Host,
                 Path = AbsolutePath,
                 Query = RemoveLeadingQuestionMark(Query),
-                Scheme = Scheme
+                Scheme = Scheme,
             };
 
             _request.RequestUri = uriBuilder.Uri;
+            _request.Method = new HttpMethod(Method);
             return _request;
         }
 
@@ -63,7 +64,7 @@ namespace Ocelot.Request.Middleware
                 Host = Host,
                 Path = AbsolutePath,
                 Query = RemoveLeadingQuestionMark(Query),
-                Scheme = Scheme
+                Scheme = Scheme,
             };
 
             return uriBuilder.Uri.AbsoluteUri;
@@ -74,9 +75,9 @@ namespace Ocelot.Request.Middleware
             return ToUri();
         }
 
-        private string RemoveLeadingQuestionMark(string query)
+        private static string RemoveLeadingQuestionMark(string query)
         {
-            if (!string.IsNullOrEmpty(query) && query.StartsWith("?"))
+            if (!string.IsNullOrEmpty(query) && query.StartsWith('?'))
             {
                 return query.Substring(1);
             }

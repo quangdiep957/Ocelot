@@ -1,15 +1,16 @@
-﻿namespace Ocelot.Provider.Consul
-{
-    using global::Consul;
-    using System;
+﻿using System;
 
+using global::Consul;
+
+namespace Ocelot.Provider.Consul
+{
     public class ConsulClientFactory : IConsulClientFactory
     {
         public IConsulClient Get(ConsulRegistryConfiguration config)
         {
             return new ConsulClient(c =>
             {
-                c.Address = new Uri($"http://{config.Host}:{config.Port}");
+                c.Address = new Uri($"{config.Scheme}://{config.Host}:{config.Port}");
 
                 if (!string.IsNullOrEmpty(config?.Token))
                 {

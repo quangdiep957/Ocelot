@@ -1,14 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
+
+using Ocelot.Configuration.File;
+
+using Microsoft.AspNetCore.Http;
+
+using TestStack.BDDfy;
+
+using Xunit;
+
 namespace Ocelot.AcceptanceTests
 {
-    using Configuration.File;
-    using Microsoft.AspNetCore.Http;
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Threading;
-    using TestStack.BDDfy;
-    using Xunit;
-
     public class CachingTests : IDisposable
     {
         private readonly Steps _steps;
@@ -23,39 +27,41 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_cached_response()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 57899,
-                                }
+                                    Port = port,
+                                },
                             },
                             DownstreamScheme = "http",
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             FileCacheOptions = new FileCacheOptions
                             {
-                                TtlSeconds = 100
-                            }
-                        }
-                    }
+                                TtlSeconds = 100,
+                            },
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:57899", 200, "Hello from Laura", null, null))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, "Hello from Laura", null, null))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .And(x => _steps.ThenTheResponseBodyShouldBe("Hello from Laura"))
-                .Given(x => x.GivenTheServiceNowReturns("http://localhost:57899", 200, "Hello from Tom"))
+                .Given(x => x.GivenTheServiceNowReturns($"http://localhost:{port}", 200, "Hello from Tom"))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .And(x => _steps.ThenTheResponseBodyShouldBe("Hello from Laura"))
@@ -66,39 +72,41 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_cached_response_with_expires_header()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 52839,
-                                }
+                                    Port = port,
+                                },
                             },
                             DownstreamScheme = "http",
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             FileCacheOptions = new FileCacheOptions
                             {
-                                TtlSeconds = 100
-                            }
-                        }
-                    }
+                                TtlSeconds = 100,
+                            },
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:52839", 200, "Hello from Laura", "Expires", "-1"))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, "Hello from Laura", "Expires", "-1"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .And(x => _steps.ThenTheResponseBodyShouldBe("Hello from Laura"))
-                .Given(x => x.GivenTheServiceNowReturns("http://localhost:52839", 200, "Hello from Tom"))
+                .Given(x => x.GivenTheServiceNowReturns($"http://localhost:{port}", 200, "Hello from Tom"))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .And(x => _steps.ThenTheResponseBodyShouldBe("Hello from Laura"))
@@ -110,39 +118,41 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_cached_response_when_using_jsonserialized_cache()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 57879,
-                                }
+                                    Port = port,
+                                },
                             },
                             DownstreamScheme = "http",
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             FileCacheOptions = new FileCacheOptions
                             {
-                                TtlSeconds = 100
-                            }
-                        }
-                    }
+                                TtlSeconds = 100,
+                            },
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:57879", 200, "Hello from Laura", null, null))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, "Hello from Laura", null, null))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunningUsingJsonSerializedCache())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .And(x => _steps.ThenTheResponseBodyShouldBe("Hello from Laura"))
-                .Given(x => x.GivenTheServiceNowReturns("http://localhost:57879", 200, "Hello from Tom"))
+                .Given(x => x.GivenTheServiceNowReturns($"http://localhost:{port}", 200, "Hello from Tom"))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .And(x => _steps.ThenTheResponseBodyShouldBe("Hello from Laura"))
@@ -152,47 +162,49 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_not_return_cached_response_as_ttl_expires()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 57873,
-                                }
+                                    Port = port,
+                                },
                             },
                             DownstreamScheme = "http",
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             FileCacheOptions = new FileCacheOptions
                             {
-                                TtlSeconds = 1
-                            }
-                        }
-                    }
+                                TtlSeconds = 1,
+                            },
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:57873", 200, "Hello from Laura", null, null))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, "Hello from Laura", null, null))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .And(x => _steps.ThenTheResponseBodyShouldBe("Hello from Laura"))
-                .Given(x => x.GivenTheServiceNowReturns("http://localhost:57873", 200, "Hello from Tom"))
-                .And(x => x.GivenTheCacheExpires())
+                .Given(x => x.GivenTheServiceNowReturns($"http://localhost:{port}", 200, "Hello from Tom"))
+                .And(x => GivenTheCacheExpires())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .And(x => _steps.ThenTheResponseBodyShouldBe("Hello from Tom"))
                 .BDDfy();
         }
 
-        private void GivenTheCacheExpires()
+        private static void GivenTheCacheExpires()
         {
             Thread.Sleep(1000);
         }
@@ -211,6 +223,7 @@ namespace Ocelot.AcceptanceTests
                 {
                     context.Response.Headers.Add(key, value);
                 }
+
                 context.Response.StatusCode = statusCode;
                 await context.Response.WriteAsync(responseBody);
             });

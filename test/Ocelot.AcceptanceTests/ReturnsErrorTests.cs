@@ -1,12 +1,15 @@
-﻿namespace Ocelot.AcceptanceTests
-{
-    using Ocelot.Configuration.File;
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using TestStack.BDDfy;
-    using Xunit;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 
+using Ocelot.Configuration.File;
+
+using TestStack.BDDfy;
+
+using Xunit;
+
+namespace Ocelot.AcceptanceTests
+{
     public class ReturnsErrorTests : IDisposable
     {
         private readonly Steps _steps;
@@ -19,32 +22,65 @@
         }
 
         [Fact]
-        public void should_return_internal_server_error_if_downstream_service_returns_internal_server_error()
+        public void should_return_bad_gateway_error_if_downstream_service_doesnt_respond()
         {
-
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 53876,
-                                }
+                                    Port = 53877,
+                                },
                             },
                             DownstreamScheme = "http",
-                        }
-                    }
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:53876"))
+            this.Given(x => _steps.GivenThereIsAConfiguration(configuration))
+                .And(x => _steps.GivenOcelotIsRunning())
+                .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
+                .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.BadGateway))
+                .BDDfy();
+        }
+
+        [Fact]
+        public void should_return_internal_server_error_if_downstream_service_returns_internal_server_error()
+        {
+            var port = RandomPortFinder.GetRandomPort();
+
+            var configuration = new FileConfiguration
+            {
+                Routes = new List<FileRoute>
+                    {
+                        new()
+                        {
+                            DownstreamPathTemplate = "/",
+                            UpstreamPathTemplate = "/",
+                            UpstreamHttpMethod = new List<string> { "Get" },
+                            DownstreamHostAndPorts = new List<FileHostAndPort>
+                            {
+                                new()
+                                {
+                                    Host = "localhost",
+                                    Port = port,
+                                },
+                            },
+                            DownstreamScheme = "http",
+                        },
+                    },
+            };
+
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
@@ -55,21 +91,23 @@
         [Fact]
         public void should_log_warning_if_downstream_service_returns_internal_server_error()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 53876,
+                                    Port = port,
                                 },
                             },
                             DownstreamScheme = "http",
@@ -77,7 +115,7 @@
                     },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:53876"))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunningWithLogger())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))

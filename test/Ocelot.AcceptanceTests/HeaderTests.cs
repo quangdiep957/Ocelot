@@ -1,15 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+
+using Ocelot.Configuration.File;
+
+using Microsoft.AspNetCore.Http;
+
+using TestStack.BDDfy;
+
+using Xunit;
+
 namespace Ocelot.AcceptanceTests
 {
-    using Microsoft.AspNetCore.Http;
-    using Ocelot.Configuration.File;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net;
-    using System.Threading.Tasks;
-    using TestStack.BDDfy;
-    using Xunit;
-
     public class HeaderTests : IDisposable
     {
         private int _count;
@@ -25,33 +29,35 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_transform_upstream_header()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 51871,
-                                }
+                                    Port = port,
+                                },
                             },
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             UpstreamHeaderTransform = new Dictionary<string,string>
                             {
-                                {"Laz", "D, GP"}
-                            }
-                        }
-                    }
+                                {"Laz", "D, GP"},
+                            },
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:51871", "/", 200, "Laz"))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/", 200, "Laz"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .And(x => _steps.GivenIAddAHeader("Laz", "D"))
@@ -64,33 +70,35 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_transform_downstream_header()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 51871,
-                                }
+                                    Port = port,
+                                },
                             },
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             DownstreamHeaderTransform = new Dictionary<string,string>
                             {
-                                {"Location", "http://www.bbc.co.uk/, http://ocelot.com/"}
-                            }
-                        }
-                    }
+                                {"Location", "http://www.bbc.co.uk/, http://ocelot.com/"},
+                            },
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:51871", "/", 200, "Location", "http://www.bbc.co.uk/"))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/", 200, "Location", "http://www.bbc.co.uk/"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
@@ -102,37 +110,39 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_fix_issue_190()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 6773,
-                                }
+                                    Port = port,
+                                },
                             },
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             DownstreamHeaderTransform = new Dictionary<string,string>
                             {
-                                {"Location", "http://localhost:6773, {BaseUrl}"}
+                                {"Location", $"http://localhost:{port}, {{BaseUrl}}"},
                             },
                             HttpHandlerOptions = new FileHttpHandlerOptions
                             {
-                                AllowAutoRedirect = false
-                            }
-                        }
-                    }
+                                AllowAutoRedirect = false,
+                            },
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:6773", "/", 302, "Location", "http://localhost:6773/pay/Receive"))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/", 302, "Location", $"http://localhost:{port}/pay/Receive"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
@@ -144,37 +154,39 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_fix_issue_205()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 6773,
-                                }
+                                    Port = port,
+                                },
                             },
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             DownstreamHeaderTransform = new Dictionary<string,string>
                             {
-                                {"Location", "{DownstreamBaseUrl}, {BaseUrl}"}
+                                {"Location", "{DownstreamBaseUrl}, {BaseUrl}"},
                             },
                             HttpHandlerOptions = new FileHttpHandlerOptions
                             {
-                                AllowAutoRedirect = false
-                            }
-                        }
-                    }
+                                AllowAutoRedirect = false,
+                            },
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:6773", "/", 302, "Location", "http://localhost:6773/pay/Receive"))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/", 302, "Location", $"http://localhost:{port}/pay/Receive"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
@@ -186,41 +198,43 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_fix_issue_417()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 6773,
-                                }
+                                    Port = port,
+                                },
                             },
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             DownstreamHeaderTransform = new Dictionary<string,string>
                             {
-                                {"Location", "{DownstreamBaseUrl}, {BaseUrl}"}
+                                {"Location", "{DownstreamBaseUrl}, {BaseUrl}"},
                             },
                             HttpHandlerOptions = new FileHttpHandlerOptions
                             {
-                                AllowAutoRedirect = false
-                            }
-                        }
+                                AllowAutoRedirect = false,
+                            },
+                        },
                     },
                 GlobalConfiguration = new FileGlobalConfiguration
                 {
-                    BaseUrl = "http://anotherapp.azurewebsites.net"
-                }
+                    BaseUrl = "http://anotherapp.azurewebsites.net",
+                },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:6773", "/", 302, "Location", "http://localhost:6773/pay/Receive"))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/", 302, "Location", $"http://localhost:{port}/pay/Receive"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
@@ -232,33 +246,35 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void request_should_reuse_cookies_with_cookie_container()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                 {
-                    new FileReRoute
+                    new()
                     {
                         DownstreamPathTemplate = "/sso/{everything}",
                         DownstreamScheme = "http",
                         DownstreamHostAndPorts = new List<FileHostAndPort>
                         {
-                            new FileHostAndPort
+                            new()
                             {
                                 Host = "localhost",
-                                Port = 6774,
-                            }
+                                Port = port,
+                            },
                         },
                         UpstreamPathTemplate = "/sso/{everything}",
                         UpstreamHttpMethod = new List<string> { "Get", "Post", "Options" },
                         HttpHandlerOptions = new FileHttpHandlerOptions
                         {
-                            UseCookieContainer = true
-                        }
-                    }
-                }
+                            UseCookieContainer = true,
+                        },
+                    },
+                },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:6774", "/sso/test", 200))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/sso/test", 200))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .And(x => _steps.WhenIGetUrlOnTheApiGateway("/sso/test"))
@@ -273,33 +289,35 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void request_should_have_own_cookies_no_cookie_container()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                 {
-                    new FileReRoute
+                    new()
                     {
                         DownstreamPathTemplate = "/sso/{everything}",
                         DownstreamScheme = "http",
                         DownstreamHostAndPorts = new List<FileHostAndPort>
                         {
-                            new FileHostAndPort
+                            new()
                             {
                                 Host = "localhost",
-                                Port = 6775,
-                            }
+                                Port = port,
+                            },
                         },
                         UpstreamPathTemplate = "/sso/{everything}",
                         UpstreamHttpMethod = new List<string> { "Get", "Post", "Options" },
                         HttpHandlerOptions = new FileHttpHandlerOptions
                         {
-                            UseCookieContainer = false
-                        }
-                    }
-                }
+                            UseCookieContainer = false,
+                        },
+                    },
+                },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:6775", "/sso/test", 200))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/sso/test", 200))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .And(x => _steps.WhenIGetUrlOnTheApiGateway("/sso/test"))
@@ -314,29 +332,31 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void issue_474_should_not_put_spaces_in_header()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 52866,
-                                }
+                                    Port = port,
+                                },
                             },
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
-                        }
-                    }
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:52866", "/", 200, "Accept"))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/", 200, "Accept"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .And(x => _steps.GivenIAddAHeader("Accept", "text/html,application/xhtml+xml,application/xml;"))
@@ -349,29 +369,31 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void issue_474_should_put_spaces_in_header()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 51874,
-                                }
+                                    Port = port,
+                                },
                             },
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Get" },
-                        }
-                    }
+                        },
+                    },
             };
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:51874", "/", 200, "Accept"))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/", 200, "Accept"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .And(x => _steps.GivenIAddAHeader("Accept", "text/html"))
@@ -395,9 +417,18 @@ namespace Ocelot.AcceptanceTests
                     return Task.CompletedTask;
                 }
 
-                if (context.Request.Cookies.TryGetValue("test", out var cookieValue) || context.Request.Headers.TryGetValue("Set-Cookie", out var headerValue))
+                if (context.Request.Cookies.TryGetValue("test", out var cookieValue))
                 {
-                    if (cookieValue == "0" || headerValue == "test=1; path=/")
+                    if (cookieValue == "0")
+                    {
+                        context.Response.StatusCode = statusCode;
+                        return Task.CompletedTask;
+                    }
+                }
+
+                if (context.Request.Headers.TryGetValue("Set-Cookie", out var headerValue))
+                {
+                    if (headerValue == "test=1; path=/")
                     {
                         context.Response.StatusCode = statusCode;
                         return Task.CompletedTask;

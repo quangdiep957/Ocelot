@@ -1,17 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
+
+using Microsoft.AspNetCore.Http;
+
+using Ocelot.Configuration.File;
+
+using Shouldly;
+
+using TestStack.BDDfy;
+
+using Xunit;
+
 namespace Ocelot.AcceptanceTests
 {
-    using Microsoft.AspNetCore.Http;
-    using Ocelot.Configuration.File;
-    using Shouldly;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Linq;
-    using System.Net;
-    using TestStack.BDDfy;
-    using Xunit;
-
     public class GzipTests : IDisposable
     {
         private readonly Steps _steps;
@@ -26,31 +31,33 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_with_simple_url()
         {
+            var port = RandomPortFinder.GetRandomPort();
+
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 51179,
-                                }
+                                    Port = port,
+                                },
                             },
                             UpstreamPathTemplate = "/",
                             UpstreamHttpMethod = new List<string> { "Post" },
-                        }
-                    }
+                        },
+                    },
             };
 
             var input = "people";
 
-            this.Given(x => x.GivenThereIsAServiceRunningOn("http://localhost:51179", "/", 200, "Hello from Laura", "\"people\""))
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/", 200, "Hello from Laura", "\"people\""))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunning())
                 .And(x => _steps.GivenThePostHasGzipContent(input))

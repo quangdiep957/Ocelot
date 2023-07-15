@@ -1,15 +1,21 @@
-﻿namespace Ocelot.AcceptanceTests
-{
-    using Configuration.File;
-    using Consul;
-    using Microsoft.AspNetCore.Http;
-    using Newtonsoft.Json;
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using TestStack.BDDfy;
-    using Xunit;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 
+using Ocelot.Configuration.File;
+
+using Consul;
+
+using Microsoft.AspNetCore.Http;
+
+using Newtonsoft.Json;
+
+using TestStack.BDDfy;
+
+using Xunit;
+
+namespace Ocelot.AcceptanceTests
+{
     public class TwoDownstreamServicesTests : IDisposable
     {
         private readonly Steps _steps;
@@ -28,54 +34,57 @@
         [Fact]
         public void should_fix_issue_194()
         {
-            var consulPort = 8503;
-            var downstreamServiceOneUrl = "http://localhost:8362";
-            var downstreamServiceTwoUrl = "http://localhost:8330";
+            var consulPort = RandomPortFinder.GetRandomPort();
+            var servicePort1 = RandomPortFinder.GetRandomPort();
+            var servicePort2 = RandomPortFinder.GetRandomPort();
+            var downstreamServiceOneUrl = $"http://localhost:{servicePort1}";
+            var downstreamServiceTwoUrl = $"http://localhost:{servicePort2}";
             var fakeConsulServiceDiscoveryUrl = $"http://localhost:{consulPort}";
 
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/api/user/{user}",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 8362,
-                                }
+                                    Port = servicePort1,
+                                },
                             },
                             UpstreamPathTemplate = "/api/user/{user}",
                             UpstreamHttpMethod = new List<string> { "Get" },
                         },
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/api/product/{product}",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 8330,
-                                }
+                                    Port = servicePort2,
+                                },
                             },
                             UpstreamPathTemplate = "/api/product/{product}",
                             UpstreamHttpMethod = new List<string> { "Get" },
-                        }
+                        },
                     },
-                GlobalConfiguration = new FileGlobalConfiguration()
+                GlobalConfiguration = new FileGlobalConfiguration
                 {
-                    ServiceDiscoveryProvider = new FileServiceDiscoveryProvider()
+                    ServiceDiscoveryProvider = new FileServiceDiscoveryProvider
                     {
+                        Scheme = "https",
                         Host = "localhost",
-                        Port = consulPort
-                    }
-                }
+                        Port = consulPort,
+                    },
+                },
             };
 
             this.Given(x => x.GivenProductServiceOneIsRunning(downstreamServiceOneUrl, "/api/user/info", 200, "user"))

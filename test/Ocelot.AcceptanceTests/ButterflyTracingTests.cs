@@ -1,20 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
+
+using Butterfly.Client.AspNetCore;
+
+using Ocelot.Configuration.File;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+
+using Shouldly;
+
+using TestStack.BDDfy;
+
+using Xunit;
+using Xunit.Abstractions;
+
 namespace Ocelot.AcceptanceTests
 {
-    using Butterfly.Client.AspNetCore;
-    using Configuration.File;
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Http;
-    using Rafty.Infrastructure;
-    using Shouldly;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net;
-    using TestStack.BDDfy;
-    using Xunit;
-    using Xunit.Abstractions;
-
     public class ButterflyTracingTests : IDisposable
     {
         private IWebHost _serviceOneBuilder;
@@ -35,56 +40,59 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_forward_tracing_information_from_ocelot_and_downstream_services()
         {
+            var port1 = RandomPortFinder.GetRandomPort();
+            var port2 = RandomPortFinder.GetRandomPort();
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/api/values",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 51887,
-                                }
+                                    Port = port1,
+                                },
                             },
                             UpstreamPathTemplate = "/api001/values",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             HttpHandlerOptions = new FileHttpHandlerOptions
                             {
-                                UseTracing = true
-                            }
+                                UseTracing = true,
+                            },
                         },
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/api/values",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 51388,
-                                }
+                                    Port = port2,
+                                },
                             },
                             UpstreamPathTemplate = "/api002/values",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             HttpHandlerOptions = new FileHttpHandlerOptions
                             {
-                                UseTracing = true
-                            }
-                        }
-                    }
+                                UseTracing = true,
+                            },
+                        },
+                    },
             };
 
-            var butterflyUrl = "http://localhost:9618";
+            var butterflyPort = RandomPortFinder.GetRandomPort();
+            var butterflyUrl = $"http://localhost:{butterflyPort}";
 
             this.Given(x => GivenFakeButterfly(butterflyUrl))
-                .And(x => GivenServiceOneIsRunning("http://localhost:51887", "/api/values", 200, "Hello from Laura", butterflyUrl))
-                .And(x => GivenServiceTwoIsRunning("http://localhost:51388", "/api/values", 200, "Hello from Tom", butterflyUrl))
+                .And(x => GivenServiceOneIsRunning($"http://localhost:{port1}", "/api/values", 200, "Hello from Laura", butterflyUrl))
+                .And(x => GivenServiceTwoIsRunning($"http://localhost:{port2}", "/api/values", 200, "Hello from Tom", butterflyUrl))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunningUsingButterfly(butterflyUrl))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/api001/values"))
@@ -105,41 +113,43 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_tracing_header()
         {
+            var port = RandomPortFinder.GetRandomPort();
             var configuration = new FileConfiguration
             {
-                ReRoutes = new List<FileReRoute>
+                Routes = new List<FileRoute>
                     {
-                        new FileReRoute
+                        new()
                         {
                             DownstreamPathTemplate = "/api/values",
                             DownstreamScheme = "http",
                             DownstreamHostAndPorts = new List<FileHostAndPort>
                             {
-                                new FileHostAndPort
+                                new()
                                 {
                                     Host = "localhost",
-                                    Port = 51387,
-                                }
+                                    Port = port,
+                                },
                             },
                             UpstreamPathTemplate = "/api001/values",
                             UpstreamHttpMethod = new List<string> { "Get" },
                             HttpHandlerOptions = new FileHttpHandlerOptions
                             {
-                                UseTracing = true
+                                UseTracing = true,
                             },
-                            DownstreamHeaderTransform = new Dictionary<string, string>()
+                            DownstreamHeaderTransform = new Dictionary<string, string>
                             {
                                 {"Trace-Id", "{TraceId}"},
-                                {"Tom", "Laura"}
-                            }
-                        }
-                    }
+                                {"Tom", "Laura"},
+                            },
+                        },
+                    },
             };
 
-            var butterflyUrl = "http://localhost:9618";
+            var butterflyPort = RandomPortFinder.GetRandomPort();
+            var butterflyUrl = $"http://localhost:{butterflyPort}";
 
             this.Given(x => GivenFakeButterfly(butterflyUrl))
-                .And(x => GivenServiceOneIsRunning("http://localhost:51387", "/api/values", 200, "Hello from Laura", butterflyUrl))
+                .And(x => GivenServiceOneIsRunning($"http://localhost:{port}", "/api/values", 200, "Hello from Laura", butterflyUrl))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
                 .And(x => _steps.GivenOcelotIsRunningUsingButterfly(butterflyUrl))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/api001/values"))
@@ -163,7 +173,7 @@ namespace Ocelot.AcceptanceTests
                     {
                         option.CollectorUrl = butterflyUrl;
                         option.Service = "Service One";
-                        option.IgnoredRoutesRegexPatterns = new string[0];
+                        option.IgnoredRoutesRegexPatterns = Array.Empty<string>();
                     });
                 })
                 .Configure(app =>
@@ -223,7 +233,7 @@ namespace Ocelot.AcceptanceTests
                     {
                         option.CollectorUrl = butterflyUrl;
                         option.Service = "Service Two";
-                        option.IgnoredRoutesRegexPatterns = new string[0];
+                        option.IgnoredRoutesRegexPatterns = Array.Empty<string>();
                     });
                 })
                 .Configure(app =>

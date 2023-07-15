@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using System;
 
 namespace Ocelot.Configuration
 {
     public interface IInternalConfiguration
     {
-        List<ReRoute> ReRoutes { get; }
+        List<Route> Routes { get; }
 
         string AdministrationPath { get; }
 
@@ -19,5 +20,7 @@ namespace Ocelot.Configuration
         QoSOptions QoSOptions { get; }
 
         HttpHandlerOptions HttpHandlerOptions { get; }
+
+        Version DownstreamHttpVersion { get; }
     }
 }

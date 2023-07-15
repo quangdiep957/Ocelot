@@ -1,13 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Microsoft.AspNetCore.Http;
+
+using Ocelot.Middleware;
+
+using Ocelot.Request.Middleware;
+
+using Ocelot.Infrastructure.RequestData;
+
+using Ocelot.Responses;
+
 namespace Ocelot.Infrastructure
 {
-    using Microsoft.AspNetCore.Http;
-    using Ocelot.Infrastructure.RequestData;
-    using Ocelot.Middleware;
-    using Ocelot.Request.Middleware;
-    using Ocelot.Responses;
-    using System;
-    using System.Collections.Generic;
-
     public class Placeholders : IPlaceholders
     {
         private readonly Dictionary<string, Func<Response<string>>> _placeholders;
@@ -25,12 +31,13 @@ namespace Ocelot.Infrastructure
             {
                 { "{BaseUrl}", GetBaseUrl() },
                 { "{TraceId}", GetTraceId() },
-                { "{RemoteIpAddress}", GetRemoteIpAddress() }
+                { "{RemoteIpAddress}", GetRemoteIpAddress() },
+                { "{UpstreamHost}", GetUpstreamHost() },
             };
 
             _requestPlaceholders = new Dictionary<string, Func<DownstreamRequest, string>>
             {
-                { "{DownstreamBaseUrl}", GetDownstreamBaseUrl() }
+                { "{DownstreamBaseUrl}", GetDownstreamBaseUrl() },
             };
         }
 
@@ -97,7 +104,7 @@ namespace Ocelot.Infrastructure
             };
         }
 
-        private Func<DownstreamRequest, string> GetDownstreamBaseUrl()
+        private static Func<DownstreamRequest, string> GetDownstreamBaseUrl()
         {
             return x =>
             {
@@ -129,6 +136,26 @@ namespace Ocelot.Infrastructure
         private Func<Response<string>> GetBaseUrl()
         {
             return () => new OkResponse<string>(_finder.Find());
+        }
+
+        private Func<Response<string>> GetUpstreamHost()
+        {
+            return () =>
+            {
+                try
+                {
+                    if (_httpContextAccessor.HttpContext.Request.Headers.TryGetValue("Host", out var upstreamHost))
+                    {
+                        return new OkResponse<string>(upstreamHost.First());
+                    }
+
+                    return new ErrorResponse<string>(new CouldNotFindPlaceholderError("{UpstreamHost}"));
+                }
+                catch
+                {
+                    return new ErrorResponse<string>(new CouldNotFindPlaceholderError("{UpstreamHost}"));
+                }
+            };
         }
     }
 }
