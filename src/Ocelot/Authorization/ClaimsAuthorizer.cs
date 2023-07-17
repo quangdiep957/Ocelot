@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Ocelot.Authorization
 {
-    public class ClaimsAuthorizer : IClaimsAuthorizer
+    public partial class ClaimsAuthorizer : IClaimsAuthorizer
     {
         private readonly IClaimsParser _claimsParser;
 
@@ -35,7 +35,7 @@ namespace Ocelot.Authorization
                 if (values.Data != null)
                 {
                     // dynamic claim
-                    var match = Regex.Match(required.Value, @"^{(?<variable>.+)}$");
+                    var match = VariableRegex().Match(required.Value);
                     if (match.Success)
                     {
                         var variableName = match.Captures[0].Value;
@@ -69,7 +69,7 @@ namespace Ocelot.Authorization
                     }
                     else
                     {
-                        //if required value is not specified
+                        // if required value is not specified
                         if (string.IsNullOrEmpty(required.Value))
                         {
                             continue;
@@ -92,5 +92,8 @@ namespace Ocelot.Authorization
 
             return new OkResponse<bool>(true);
         }
+
+        [GeneratedRegex("^{(?<variable>.+)}$")]
+        private static partial Regex VariableRegex();
     }
 }
