@@ -46,7 +46,6 @@ namespace Ocelot.DependencyInjection
 
             const string globalConfigFile = "ocelot.global.json";
 
-
             var excludeConfigName = env?.EnvironmentName != null ? $"ocelot.{env.EnvironmentName}.json" : string.Empty;
 
             var files = new DirectoryInfo(folder)
