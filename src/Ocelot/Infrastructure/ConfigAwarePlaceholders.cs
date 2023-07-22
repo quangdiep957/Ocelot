@@ -1,11 +1,8 @@
+using Microsoft.Extensions.Configuration;
+using Ocelot.Request.Middleware;
+using Ocelot.Responses;
 using System;
 using System.Text.RegularExpressions;
-
-using Microsoft.Extensions.Configuration;
-
-using Ocelot.Request.Middleware;
-
-using Ocelot.Responses;
 
 namespace Ocelot.Infrastructure
 {
@@ -13,6 +10,7 @@ namespace Ocelot.Infrastructure
     {
         private readonly IConfiguration _configuration;
         private readonly IPlaceholders _placeholders;
+        private static readonly Regex _regex = new(@"[{}]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
 
         public ConfigAwarePlaceholders(IConfiguration configuration, IPlaceholders placeholders)
         {
@@ -51,7 +49,7 @@ namespace Ocelot.Infrastructure
             => _placeholders.Remove(key);
 
         private static string CleanKey(string key)
-            => Regex.Replace(key, @"[{}]", string.Empty, RegexOptions.None);
+            => _regex.Replace(key, string.Empty);
 
         private Response<string> GetFromConfig(string key)
         {

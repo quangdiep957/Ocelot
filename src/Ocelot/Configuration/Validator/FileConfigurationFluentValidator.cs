@@ -1,20 +1,14 @@
-﻿using System;
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
+using Ocelot.Configuration.File;
+using Ocelot.Errors;
+using Ocelot.Responses;
+using Ocelot.ServiceDiscovery;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-using Ocelot.Errors;
-
-using Ocelot.Configuration.File;
-
-using FluentValidation;
-
-using Microsoft.Extensions.DependencyInjection;
-
-using Ocelot.Responses;
-
-using Ocelot.ServiceDiscovery;
 
 namespace Ocelot.Configuration.Validator
 {
@@ -22,6 +16,9 @@ namespace Ocelot.Configuration.Validator
     {
         private const string Servicefabric = "servicefabric";
         private readonly List<ServiceDiscoveryFinderDelegate> _serviceDiscoveryFinderDelegates;
+
+        private static readonly Regex _regExPlaceholder =
+            new Regex("{[^}]+}", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
 
         public FileConfigurationFluentValidator(IServiceProvider provider, RouteFluentValidator routeFluentValidator, FileGlobalConfigurationFluentValidator fileGlobalConfigurationFluentValidator)
         {
@@ -107,8 +104,7 @@ namespace Ocelot.Configuration.Validator
 
         private static bool IsPlaceholderNotDuplicatedIn(string upstreamPathTemplate)
         {
-            var regExPlaceholder = new Regex("{[^}]+}");
-            var matches = regExPlaceholder.Matches(upstreamPathTemplate);
+            var matches = _regExPlaceholder.Matches(upstreamPathTemplate);
             var upstreamPathPlaceholders = matches.Select(m => m.Value);
             return upstreamPathPlaceholders.Count() == upstreamPathPlaceholders.Distinct().Count();
         }

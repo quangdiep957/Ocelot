@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Ocelot.Responses;
+using System;
 using System.Text.RegularExpressions;
-
-using Ocelot.Responses;
 
 namespace Ocelot.Configuration.Parser
 {
     public class ClaimToThingConfigurationParser : IClaimToThingConfigurationParser
     {
-        private readonly Regex _claimRegex = new("Claims\\[.*\\]");
-        private readonly Regex _indexRegex = new("value\\[.*\\]");
+        private static readonly Regex _claimRegex = new("Claims\\[.*\\]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+        private static readonly Regex _indexRegex = new("value\\[.*\\]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
         private const char SplitToken = '>';
 
         public Response<ClaimToThing> Extract(string existingKey, string value)
