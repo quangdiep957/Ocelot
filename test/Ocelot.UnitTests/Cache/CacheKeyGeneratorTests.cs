@@ -24,7 +24,7 @@ namespace Ocelot.UnitTests.Cache
         }
 
         [Fact]
-        public void should_generate_cache_key_from_context()
+        public void Should_generate_cache_key_from_context()
         {
             this.Given(x => x.GivenCacheKeyFromContext(_downstreamRequest))
                 .BDDfy();
