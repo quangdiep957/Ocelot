@@ -32,7 +32,9 @@ namespace Ocelot.Configuration.Repository
             var configuration = _cache.Get(_cacheKey, _cacheKey);
 
             if (configuration != null)
+            {
                 return Task.FromResult<Response<FileConfiguration>>(new OkResponse<FileConfiguration>(configuration));
+            }
 
             string jsonConfiguration;
 
