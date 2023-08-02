@@ -20,7 +20,6 @@ namespace Ocelot.UnitTests.RateLimit
 {
     public class ClientRateLimitMiddlewareTests
     {
-        private int _responseStatusCode;
         private readonly IRateLimitCounterHandler _rateLimitCounterHandler;
         private readonly Mock<IOcelotLoggerFactory> _loggerFactory;
         private readonly Mock<IOcelotLogger> _logger;
