@@ -43,7 +43,7 @@ namespace Ocelot.UnitTests.RateLimit
         }
 
         [Fact]
-        public void should_call_middleware_and_ratelimiting()
+        public void Should_call_middleware_and_ratelimiting()
         {
             var upstreamTemplate = new UpstreamPathTemplateBuilder().Build();
 
@@ -69,7 +69,7 @@ namespace Ocelot.UnitTests.RateLimit
         }
 
         [Fact]
-        public void should_call_middleware_withWhitelistClient()
+        public void Should_call_middleware_withWhitelistClient()
         {
             var downstreamRoute = new Ocelot.DownstreamRouteFinder.DownstreamRouteHolder(new List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue>(),
                  new RouteBuilder()
