@@ -1,17 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using Ocelot.DownstreamRouteFinder.UrlMatcher;
+using Ocelot.Infrastructure.Claims.Parser;
+using Ocelot.Responses;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
-using Ocelot.DownstreamRouteFinder.UrlMatcher;
-
-using Ocelot.Infrastructure.Claims.Parser;
-
-using Ocelot.Responses;
-
 namespace Ocelot.Authorization
 {
-    public class ClaimsAuthorizer : IClaimsAuthorizer
+    /// <summary>
+    /// Authorizer which is implemented using Claims-based authorization.
+    /// <para>
+    /// Microsoft Learn: <see href="https://learn.microsoft.com/en-us/aspnet/core/security/authorization/claims?view=aspnetcore-7.0">Claims-based authorization in ASP.NET Core</see>.
+    /// </para>
+    /// </summary>
+    public partial class ClaimsAuthorizer : IClaimsAuthorizer
     {
         private readonly IClaimsParser _claimsParser;
 
@@ -38,7 +41,7 @@ namespace Ocelot.Authorization
                 if (values.Data != null)
                 {
                     // dynamic claim
-                    var match = Regex.Match(required.Value, @"^{(?<variable>.+)}$");
+                    var match = VariableRegex().Match(required.Value);
                     if (match.Success)
                     {
                         var variableName = match.Captures[0].Value;
@@ -72,6 +75,12 @@ namespace Ocelot.Authorization
                     }
                     else
                     {
+                        // if required value is not specified
+                        if (string.IsNullOrEmpty(required.Value))
+                        {
+                            continue;
+                        }
+
                         // static claim
                         var authorized = values.Data.Contains(required.Value);
                         if (!authorized)
@@ -89,5 +98,8 @@ namespace Ocelot.Authorization
 
             return new OkResponse<bool>(true);
         }
+
+        [GeneratedRegex("^{(?<variable>.+)}$")]
+        private static partial Regex VariableRegex();
     }
 }
