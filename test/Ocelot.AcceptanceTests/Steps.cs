@@ -842,7 +842,6 @@ namespace Ocelot.AcceptanceTests
                 {
                     s.AddAuthentication().AddJwtBearer(authenticationProviderKey, options =>
                     {
-
                     });
                     s.AddOcelot(configuration);
                 })
