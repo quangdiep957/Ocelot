@@ -270,12 +270,12 @@ namespace Ocelot.AcceptanceTests
             {
                 Routes = new List<FileRoute>
                 {
-                    new FileRoute
+                    new()
                     {
                         DownstreamPathTemplate = _downstreamServicePath,
                         DownstreamHostAndPorts = new List<FileHostAndPort>
                         {
-                            new FileHostAndPort
+                            new()
                             {
                                 Host =_downstreamServiceHost,
                                 Port = port,
