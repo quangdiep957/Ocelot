@@ -50,7 +50,7 @@ namespace Ocelot.AcceptanceTests
         }
 
         [Fact]
-        public void should_return_401_using_identity_server_access_token()
+        public void Should_return_401_using_identity_server_access_token()
         {
             var port = RandomPortFinder.GetRandomPort();
 
@@ -91,7 +91,7 @@ namespace Ocelot.AcceptanceTests
         }
 
         [Fact]
-        public void should_return_response_200_using_identity_server()
+        public void Should_return_response_200_using_identity_server()
         {
             var port = RandomPortFinder.GetRandomPort();
 
@@ -134,7 +134,7 @@ namespace Ocelot.AcceptanceTests
         }
 
         [Fact]
-        public void should_return_response_401_using_identity_server_with_token_requested_for_other_api()
+        public void Should_return_response_401_using_identity_server_with_token_requested_for_other_api()
         {
             var port = RandomPortFinder.GetRandomPort();
 
@@ -176,7 +176,7 @@ namespace Ocelot.AcceptanceTests
         }
 
         [Fact]
-        public void should_return_201_using_identity_server_access_token()
+        public void Should_return_201_using_identity_server_access_token()
         {
             var port = RandomPortFinder.GetRandomPort();
 
@@ -219,7 +219,7 @@ namespace Ocelot.AcceptanceTests
         }
 
         [Fact]
-        public void should_return_201_using_identity_server_reference_token()
+        public void Should_return_201_using_identity_server_reference_token()
         {
             var port = RandomPortFinder.GetRandomPort();
 
@@ -262,7 +262,7 @@ namespace Ocelot.AcceptanceTests
         }
 
         [Fact]
-        public void should_return_www_authenticate_header_on_401()
+        public void Should_return_www_authenticate_header_on_401()
         {
             int port = RandomPortFinder.GetRandomPort();
 
