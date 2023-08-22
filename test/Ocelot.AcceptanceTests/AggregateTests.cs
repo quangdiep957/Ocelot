@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
-
+using Newtonsoft.Json;
 using Ocelot.Configuration.File;
 using Ocelot.Middleware;
 using Ocelot.Multiplexer;
