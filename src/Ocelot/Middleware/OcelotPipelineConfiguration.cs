@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 
 namespace Ocelot.Middleware
 {
@@ -58,6 +57,14 @@ namespace Ocelot.Middleware
         /// A <see cref="Func{HttpContext, TFunc, Task}"/> delegate object.
         /// </value>
         public Func<HttpContext, Func<Task>, Task> PreQueryStringBuilderMiddleware { get; set; }
+
+        /// <summary>
+        /// This allows the user to completely override the Ocelot's Claims to Headers middleware.
+        /// </summary>
+        /// <value>
+        /// A <see cref="Func{HttpContext, TFunc, Task}"/> delegate object.
+        /// </value>
+        public Func<HttpContext, Func<Task>, Task> ClaimsToHeadersMiddleware { get; set; }
 
         /// <summary>
         /// This is an extension that will branch to different pipes.
