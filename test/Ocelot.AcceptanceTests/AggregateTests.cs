@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
-
+using Newtonsoft.Json;
 using Ocelot.Configuration.File;
 using Ocelot.Middleware;
 using Ocelot.Multiplexer;
@@ -141,6 +141,20 @@ namespace Ocelot.AcceptanceTests
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .And(x => _steps.ThenTheResponseBodyShouldBe(expected))
                 .BDDfy();
+        }
+
+        [Fact]
+        public void should_allow_get_method()
+        {
+            FileAggregateRoute route = JsonConvert.DeserializeObject<FileAggregateRoute>("{\"UpstreamHttpMethod\":[\"Get\"]}");
+            Assert.Contains("Get", route.UpstreamHttpMethod);
+        }
+
+        [Fact]
+        public void should_allow_post_method()
+        {
+            FileAggregateRoute route = JsonConvert.DeserializeObject<FileAggregateRoute>("{\"UpstreamHttpMethod\":[\"Post\"]}");
+            Assert.Contains("Post", route.UpstreamHttpMethod);
         }
 
         [Fact]

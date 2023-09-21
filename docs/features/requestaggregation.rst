@@ -181,5 +181,4 @@ Gotcha's / Further info
 
 You cannot use Routes with specific RequestIdKeys as this would be crazy complicated to track.
 
-Aggregation only supports the GET HTTP Verb.
-
+Aggregation supports the GET HTTP Verb for pure REST. It supports other verbs for APIs which do not fully follow REST.

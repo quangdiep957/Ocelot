@@ -1,9 +1,8 @@
+using Ocelot.Configuration.Builder;
+using Ocelot.Configuration.File;
 using System.Collections.Generic;
 using System.Linq;
-
-using Ocelot.Configuration.Builder;
-
-using Ocelot.Configuration.File;
+using System.Net.Http;
 
 namespace Ocelot.Configuration.Creator
 {
@@ -26,6 +25,12 @@ namespace Ocelot.Configuration.Creator
 
         private Route SetUpAggregateRoute(IEnumerable<Route> routes, FileAggregateRoute aggregateRoute, FileGlobalConfiguration globalConfiguration)
         {
+            if (!aggregateRoute.UpstreamHttpMethod.Any())
+            {
+                // Default method to Get for standard use case
+                aggregateRoute.UpstreamHttpMethod.Add(HttpMethod.Get.ToString());
+            }
+
             var applicableRoutes = new List<DownstreamRoute>();
             var allRoutes = routes.SelectMany(x => x.DownstreamRoute);
 
