@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
+using Ocelot.Cache;
 using Ocelot.Configuration.ChangeTracking;
 using Ocelot.Configuration.File;
 using Ocelot.Responses;
@@ -17,7 +18,7 @@ namespace Ocelot.Configuration.Repository
         private const string ConfigurationFileName = "ocelot";
 
         public DiskFileConfigurationRepository(IWebHostEnvironment hostingEnvironment,
-            IOcelotConfigurationChangeTokenSource changeTokenSource, Cache.IOcelotCache<FileConfiguration> cache)
+            IOcelotConfigurationChangeTokenSource changeTokenSource, IOcelotCache<FileConfiguration> cache)
         {
             _changeTokenSource = changeTokenSource;
             _cache = cache;
