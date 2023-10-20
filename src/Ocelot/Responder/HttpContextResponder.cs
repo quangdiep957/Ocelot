@@ -81,6 +81,11 @@ namespace Ocelot.Responder
             }
         }
 
+        public void SetAuthChallengeOnContext(HttpContext context, string challenge)
+        {
+            AddHeaderIfDoesntExist(context, new Header("WWW-Authenticate", new [] { challenge }));
+        }
+        
         private static void SetStatusCode(HttpContext context, int statusCode)
         {
             if (!context.Response.HasStarted)

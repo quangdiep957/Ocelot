@@ -208,6 +208,8 @@ namespace Ocelot.Multiplexer
             httpContext.Items.UpsertDownstreamRequest(finished.Items.DownstreamRequest());
 
             httpContext.Items.UpsertDownstreamResponse(finished.Items.DownstreamResponse());
+            
+            httpContext.Items.SetAuthChallenge(finished.Items.AuthChallenge());
         }
 
         private static async Task<HttpContext> Fire(HttpContext httpContext, RequestDelegate next)
