@@ -1,20 +1,24 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Ocelot.Configuration;
 using Ocelot.Logging;
 using Ocelot.Middleware;
+using System.Security.Claims;
 
 namespace Ocelot.Authentication.Middleware
 {
     public class AuthenticationMiddleware : OcelotMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly IMemoryCache _memoryCache;
 
         public AuthenticationMiddleware(RequestDelegate next,
-            IOcelotLoggerFactory loggerFactory)
+            IOcelotLoggerFactory loggerFactory, IMemoryCache memoryCache)
             : base(loggerFactory.CreateLogger<AuthenticationMiddleware>())
         {
             _next = next;
+            _memoryCache = memoryCache;
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -23,11 +27,26 @@ namespace Ocelot.Authentication.Middleware
 
             if (httpContext.Request.Method.ToUpper() != "OPTIONS" && IsAuthenticatedRoute(downstreamRoute))
             {
-                Logger.LogInformation($"{httpContext.Request.Path} is an authenticated route. {MiddlewareName} checking if client is authenticated");
+                Logger.LogInformation(
+                    $"{httpContext.Request.Path} is an authenticated route. {MiddlewareName} checking if client is authenticated");
 
-                var result = await httpContext.AuthenticateAsync(downstreamRoute.AuthenticationOptions.AuthenticationProviderKey);
+                var token = httpContext.Request.Headers
+                    .FirstOrDefault(r => r.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase));
 
-                httpContext.User = result.Principal;
+                var cacheKey = $"identityToken.{token}";
+
+                if (!_memoryCache.TryGetValue(cacheKey, out ClaimsPrincipal userClaim))
+                {
+                    var result =
+                        await httpContext.AuthenticateAsync(downstreamRoute.AuthenticationOptions
+                            .AuthenticationProviderKey);
+
+                    userClaim = result.Principal;
+
+                    _memoryCache.Set(cacheKey, userClaim, TimeSpan.FromMinutes(5));
+                }
+
+                httpContext.User = userClaim;
 
                 if (httpContext.User.Identity.IsAuthenticated)
                 {
