@@ -39,7 +39,7 @@ namespace Ocelot.Configuration.Repository
             return Task.FromResult(fileConfiguration);
         }
 
-        public Task<Response> Set(FileConfiguration fileConfiguration)
+        public Task Set(FileConfiguration fileConfiguration)
         {
             var jsonConfiguration = JsonConvert.SerializeObject(fileConfiguration, Formatting.Indented);
 
@@ -61,7 +61,7 @@ namespace Ocelot.Configuration.Repository
             }
 
             _changeTokenSource.Activate();
-            return Task.FromResult<Response>(new OkResponse());
+            return Task.CompletedTask;
         }
     }
 }
