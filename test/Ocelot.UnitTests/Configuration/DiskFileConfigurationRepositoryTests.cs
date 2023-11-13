@@ -125,7 +125,7 @@ namespace Ocelot.UnitTests.Configuration
         private void WhenISetTheConfiguration()
         {
             _repo.Set(_fileConfiguration);
-            _result = _repo.Get().Result.Data;
+            _result = _repo.GetAsync().Result;
         }
 
         private void ThenTheConfigurationIsStoredAs(FileConfiguration expecteds)
@@ -183,7 +183,7 @@ namespace Ocelot.UnitTests.Configuration
 
         private void WhenIGetTheRoutes()
         {
-            _result = _repo.Get().Result.Data;
+            _result = _repo.GetAsync().Result;
         }
 
         private void ThenTheFollowingIsReturned(FileConfiguration expecteds)
