@@ -124,7 +124,7 @@ namespace Ocelot.UnitTests.Configuration
 
         private void WhenISetTheConfiguration()
         {
-            _repo.Set(_fileConfiguration);
+            _repo.SetAsync(_fileConfiguration);
             _result = _repo.GetAsync().Result;
         }
 

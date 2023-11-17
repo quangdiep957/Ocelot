@@ -5,7 +5,6 @@ using Ocelot.Configuration;
 using Ocelot.Configuration.File;
 using Ocelot.Configuration.Repository;
 using Ocelot.Logging;
-using Ocelot.Responses;
 using System.Text;
 
 namespace Ocelot.Provider.Consul;
@@ -57,7 +56,7 @@ public class ConsulFileConfigurationRepository : IFileConfigurationRepository
         return consulConfig;
     }
 
-    public async Task Set(FileConfiguration ocelotConfiguration)
+    public async Task SetAsync(FileConfiguration ocelotConfiguration)
     {
         var json = JsonConvert.SerializeObject(ocelotConfiguration, Formatting.Indented);
         var bytes = Encoding.UTF8.GetBytes(json);
