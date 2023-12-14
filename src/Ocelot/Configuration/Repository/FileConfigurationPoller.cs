@@ -81,7 +81,8 @@ namespace Ocelot.Configuration.Repository
             }
             catch (Exception ex)
             {
-                _logger.LogWarning($"Error getting file config! Errors are:{Environment.NewLine}{ex.AllMessages}");
+                _logger.LogWarning(() => $"Error getting file config! Errors are:{Environment.NewLine}{ex.AllMessages}");
+                return;
             }
             finally
             {
