@@ -1,11 +1,6 @@
-using System.Collections.Generic;
-
 using Ocelot.Configuration.Creator;
-
 using Ocelot.Infrastructure;
-
 using Ocelot.Logging;
-
 using Ocelot.Middleware;
 
 namespace Ocelot.Headers
@@ -31,7 +26,7 @@ namespace Ocelot.Headers
 
                     if (value.IsError)
                     {
-                        _logger.LogWarning($"Unable to add header to response {add.Key}: {add.Value}");
+                        _logger.LogWarning(() => $"Unable to add header to response {add.Key}: {add.Value}");
                         continue;
                     }
 

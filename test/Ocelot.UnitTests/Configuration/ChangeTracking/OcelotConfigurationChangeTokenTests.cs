@@ -1,15 +1,8 @@
-using Xunit;
-using System;
-
 using Ocelot.Configuration.ChangeTracking;
-
-using Shouldly;
-
-using TestStack.BDDfy;
 
 namespace Ocelot.UnitTests.Configuration.ChangeTracking
 {
-    public class OcelotConfigurationChangeTokenTests
+    public class OcelotConfigurationChangeTokenTests : UnitTest
     {
         [Fact]
         public void should_call_callback_with_state()

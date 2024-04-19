@@ -1,32 +1,14 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Http;
-
-using Moq;
-
-using Ocelot.Multiplexer;
-
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.Middleware;
-
-using Ocelot.UnitTests.Responder;
-
+using Ocelot.Multiplexer;
 using Ocelot.Responses;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.UnitTests.Responder;
 
 namespace Ocelot.UnitTests.Multiplexing
 {
-    public class UserDefinedResponseAggregatorTests
+    public class UserDefinedResponseAggregatorTests : UnitTest
     {
         private readonly UserDefinedResponseAggregator _aggregator;
         private readonly Mock<IDefinedAggregatorProvider> _provider;

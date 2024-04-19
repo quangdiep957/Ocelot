@@ -1,19 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
-
 using Microsoft.AspNetCore.Http;
-
 using Ocelot.Configuration.File;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using System.IO.Compression;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -31,7 +18,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_with_simple_url()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {

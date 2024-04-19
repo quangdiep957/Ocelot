@@ -1,25 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Text;
-
-using Ocelot.Configuration.File;
-
 using Consul;
-
 using IdentityServer4.Extensions;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
-
 using Newtonsoft.Json;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.Configuration.File;
+using System.Text;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -40,8 +27,8 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_with_simple_url_when_using_jsonserialized_cache()
         {
-            var consulPort = RandomPortFinder.GetRandomPort();
-            var servicePort = RandomPortFinder.GetRandomPort();
+            var consulPort = PortFinder.GetRandomPort();
+            var servicePort = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {

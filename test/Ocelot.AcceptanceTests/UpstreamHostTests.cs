@@ -1,14 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Net;
-
-using Ocelot.Configuration.File;
-
 using Microsoft.AspNetCore.Http;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.Configuration.File;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -27,7 +18,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_with_simple_url_and_hosts_match()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -64,7 +55,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_with_simple_url_and_hosts_match_multiple_re_routes()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -117,7 +108,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_with_simple_url_and_hosts_match_multiple_re_routes_reversed()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -170,7 +161,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_with_simple_url_and_hosts_match_multiple_re_routes_reversed_with_no_host_first()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -222,7 +213,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_404_with_simple_url_and_hosts_dont_match()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {

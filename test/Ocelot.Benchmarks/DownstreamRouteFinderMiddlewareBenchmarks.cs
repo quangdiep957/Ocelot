@@ -1,32 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Columns;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Diagnosers;
-using BenchmarkDotNet.Validators;
-
-using Ocelot.Configuration;
-
-using Ocelot.DependencyInjection;
-
-using Ocelot.DownstreamRouteFinder.Finder;
-
-using Ocelot.Logging;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-using Ocelot.Middleware;
-
+using Ocelot.Configuration;
+using Ocelot.DependencyInjection;
+using Ocelot.DownstreamRouteFinder.Finder;
 using Ocelot.DownstreamRouteFinder.Middleware;
+using Ocelot.Logging;
+using Ocelot.Middleware;
 
 namespace Ocelot.Benchmarks
 {
-    [SimpleJob(launchCount: 1, warmupCount: 2, targetCount: 5)]
+    [SimpleJob(launchCount: 1, warmupCount: 2, iterationCount: 5)]
     [Config(typeof(DownstreamRouteFinderMiddlewareBenchmarks))]
     public class DownstreamRouteFinderMiddlewareBenchmarks : ManualConfig
     {
@@ -67,7 +51,7 @@ namespace Ocelot.Benchmarks
                     QueryString = new QueryString("?a=b"),
                 },
             };
-            httpContext.Request.Headers.Add("Host", "most");
+            httpContext.Request.Headers.Append("Host", "most");
             httpContext.Items.SetIInternalConfiguration(new InternalConfiguration(new List<Route>(), null, null, null, null, null, null, null, null));
 
             _httpContext = httpContext;

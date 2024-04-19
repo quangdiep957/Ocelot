@@ -1,15 +1,7 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
-using Ocelot.Configuration;
-
-using Ocelot.Infrastructure.RequestData;
-
-using Ocelot.Logging;
-
 using Microsoft.AspNetCore.Http;
-
+using Ocelot.Configuration;
+using Ocelot.Infrastructure.RequestData;
+using Ocelot.Logging;
 using Ocelot.Middleware;
 
 namespace Ocelot.Errors.Middleware
@@ -56,10 +48,7 @@ namespace Ocelot.Errors.Middleware
             catch (Exception e)
             {
                 Logger.LogDebug("error calling middleware");
-
-                var message = CreateMessage(httpContext, e);
-
-                Logger.LogError(message, e);
+                Logger.LogError(() => CreateMessage(httpContext, e), e);
 
                 SetInternalServerErrorOnResponse(httpContext);
             }

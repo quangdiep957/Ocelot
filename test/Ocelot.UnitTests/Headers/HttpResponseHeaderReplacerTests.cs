@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Http;
-using Moq;
 using Ocelot.Configuration;
 using Ocelot.Headers;
 using Ocelot.Infrastructure;
@@ -7,17 +6,10 @@ using Ocelot.Infrastructure.RequestData;
 using Ocelot.Middleware;
 using Ocelot.Request.Middleware;
 using Ocelot.Responses;
-using Shouldly;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using TestStack.BDDfy;
-using Xunit;
 
 namespace Ocelot.UnitTests.Headers
 {
-    public class HttpResponseHeaderReplacerTests
+    public class HttpResponseHeaderReplacerTests : UnitTest
     {
         private DownstreamResponse _response;
         private readonly Placeholders _placeholders;

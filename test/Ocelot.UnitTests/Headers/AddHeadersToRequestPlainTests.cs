@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using Moq;
 using Ocelot.Configuration.Creator;
 using Ocelot.Headers;
 using Ocelot.Infrastructure;
@@ -8,13 +7,10 @@ using Ocelot.Infrastructure.Claims.Parser;
 using Ocelot.Logging;
 using Ocelot.Responses;
 using Ocelot.UnitTests.Responder;
-using Shouldly;
-using TestStack.BDDfy;
-using Xunit;
 
 namespace Ocelot.UnitTests.Headers
 {
-    public class AddHeadersToRequestPlainTests
+    public class AddHeadersToRequestPlainTests : UnitTest
     {
         private readonly AddHeadersToRequest _addHeadersToRequest;
         private HttpContext _context;
@@ -74,7 +70,7 @@ namespace Ocelot.UnitTests.Headers
 
         private void ThenAnErrorIsLogged(string key, string value)
         {
-            _logger.Verify(x => x.LogWarning($"Unable to add header to response {key}: {value}"), Times.Once);
+            _logger.Verify(x => x.LogWarning(It.Is<Func<string>>(y => y.Invoke() == $"Unable to add header to response {key}: {value}")), Times.Once);
         }
 
         private void GivenHttpRequestWithoutHeaders()
@@ -84,16 +80,9 @@ namespace Ocelot.UnitTests.Headers
 
         private void GivenHttpRequestWithHeader(string headerKey, string headerValue)
         {
-            _context = new DefaultHttpContext
-            {
-                Request =
-                {
-                    Headers =
-                    {
-                        { headerKey, headerValue },
-                    },
-                },
-            };
+            var context = new DefaultHttpContext();
+            context.Request.Headers.Append(headerKey, headerValue);
+            _context = context;
         }
 
         private void WhenAddingHeader(string headerKey, string headerValue)

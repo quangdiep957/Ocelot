@@ -1,23 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Http;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.LoadBalancer.LoadBalancers;
 using Ocelot.Responses;
 using Ocelot.Values;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using System.Diagnostics;
 
 namespace Ocelot.UnitTests.LoadBalancer
 {
-    public class RoundRobinTests
+    public class RoundRobinTests : UnitTest
     {
         private readonly RoundRobin _roundRobin;
         private readonly List<Service> _services;
@@ -50,17 +39,17 @@ namespace Ocelot.UnitTests.LoadBalancer
         }
 
         [Fact]
-        public void should_go_back_to_first_address_after_finished_last()
+        public async Task should_go_back_to_first_address_after_finished_last()
         {
             var stopWatch = Stopwatch.StartNew();
 
             while (stopWatch.ElapsedMilliseconds < 1000)
             {
-                var address = _roundRobin.Lease(_httpContext).Result;
+                var address = await _roundRobin.Lease(_httpContext);
                 address.Data.ShouldBe(_services[0].HostAndPort);
-                address = _roundRobin.Lease(_httpContext).Result;
+                address = await _roundRobin.Lease(_httpContext);
                 address.Data.ShouldBe(_services[1].HostAndPort);
-                address = _roundRobin.Lease(_httpContext).Result;
+                address = await _roundRobin.Lease(_httpContext);
                 address.Data.ShouldBe(_services[2].HostAndPort);
             }
         }

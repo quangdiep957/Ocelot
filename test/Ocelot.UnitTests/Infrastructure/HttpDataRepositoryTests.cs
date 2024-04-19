@@ -1,17 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-
 using Ocelot.Infrastructure.RequestData;
 using Ocelot.Responses;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Infrastructure
 {
-    public class HttpDataRepositoryTests
+    public class HttpDataRepositoryTests : UnitTest
     {
         private readonly HttpContext _httpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;

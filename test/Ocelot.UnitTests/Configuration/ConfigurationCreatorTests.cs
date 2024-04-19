@@ -1,23 +1,12 @@
-using System.Collections.Generic;
-
 using Microsoft.Extensions.DependencyInjection;
-
-using Moq;
-
 using Ocelot.Configuration;
 using Ocelot.Configuration.Creator;
 using Ocelot.Configuration.File;
 using Ocelot.DependencyInjection;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Configuration
 {
-    public class ConfigurationCreatorTests
+    public class ConfigurationCreatorTests : UnitTest
     {
         private ConfigurationCreator _creator;
         private InternalConfiguration _result;

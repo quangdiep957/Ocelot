@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Moq;
-
-using Ocelot.Configuration;
+﻿using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.Configuration.Creator;
 using Ocelot.Configuration.File;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Configuration
 {
-    public class DynamicsCreatorTests
+    public class DynamicsCreatorTests : UnitTest
     {
         private readonly DynamicsCreator _creator;
         private readonly Mock<IRateLimitOptionsCreator> _rloCreator;

@@ -1,15 +1,9 @@
 using Ocelot.Configuration.Creator;
 using Ocelot.Configuration.File;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Configuration
 {
-    public class RequestIdKeyCreatorTests
+    public class RequestIdKeyCreatorTests : UnitTest
     {
         private FileRoute _fileRoute;
         private FileGlobalConfiguration _fileGlobalConfig;

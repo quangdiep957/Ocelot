@@ -1,17 +1,9 @@
-using System.Collections.Generic;
-
 using Ocelot.Cache;
 using Ocelot.Configuration.File;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Cache
 {
-    public class RegionCreatorTests
+    public class RegionCreatorTests : UnitTest
     {
         private string _result;
         private FileRoute _route;

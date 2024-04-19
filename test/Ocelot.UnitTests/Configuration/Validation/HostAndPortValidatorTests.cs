@@ -1,17 +1,10 @@
 using FluentValidation.Results;
-
 using Ocelot.Configuration.File;
 using Ocelot.Configuration.Validator;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Configuration.Validation
 {
-    public class HostAndPortValidatorTests
+    public class HostAndPortValidatorTests : UnitTest
     {
         private HostAndPortValidator _validator;
         private ValidationResult _result;

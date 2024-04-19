@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.Configuration.File;
-
-using Microsoft.AspNetCore.Http;
-
-using TestStack.BDDfy;
-
-using Xunit;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -27,7 +18,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_call_withratelimiting()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -87,7 +78,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_wait_for_period_timespan_to_elapse_before_making_next_request()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -154,7 +145,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_call_middleware_withWhitelistClient()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {

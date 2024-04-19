@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-
-using Moq;
-
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.Configuration.Creator;
@@ -11,16 +7,9 @@ using Ocelot.Configuration.Setter;
 using Ocelot.Errors;
 using Ocelot.Responses;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-using System;
-
 namespace Ocelot.UnitTests.Configuration
 {
-    public class FileConfigurationSetterTests
+    public class FileConfigurationSetterTests : UnitTest
     {
         private FileConfiguration _fileConfiguration;
         private readonly FileAndInternalConfigurationSetter _configSetter;

@@ -1,31 +1,15 @@
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Http;
-
-using Moq;
-
 using Ocelot.Configuration.Builder;
 using Ocelot.Logging;
 using Ocelot.Middleware;
 using Ocelot.Requester;
 using Ocelot.Requester.Middleware;
-
-using Ocelot.UnitTests.Responder;
-
 using Ocelot.Responses;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.UnitTests.Responder;
 
 namespace Ocelot.UnitTests.Requester
 {
-    public class HttpRequesterMiddlewareTests
+    public class HttpRequesterMiddlewareTests : UnitTest
     {
         private readonly Mock<IHttpRequester> _requester;
         private Response<HttpResponseMessage> _response;
@@ -50,7 +34,7 @@ namespace Ocelot.UnitTests.Requester
         public void should_call_services_correctly()
         {
             this.Given(x => x.GivenTheRequestIs())
-                .And(x => x.GivenTheRequesterReturns(new OkResponse<HttpResponseMessage>(new HttpResponseMessage(System.Net.HttpStatusCode.OK))))
+                .And(x => x.GivenTheRequesterReturns(new OkResponse<HttpResponseMessage>(new HttpResponseMessage(HttpStatusCode.OK))))
                 .When(x => x.WhenICallTheMiddleware())
                 .Then(x => x.ThenTheDownstreamResponseIsSet())
                 .Then(x => InformationIsLogged())
@@ -72,7 +56,33 @@ namespace Ocelot.UnitTests.Requester
         {
             this.Given(x => x.GivenTheRequestIs())
                     .And(x => x.GivenTheRequesterReturns(
-                        new OkResponse<HttpResponseMessage>(new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError))))
+                        new OkResponse<HttpResponseMessage>(new HttpResponseMessage(HttpStatusCode.InternalServerError))))
+                .When(x => x.WhenICallTheMiddleware())
+                .Then(x => x.WarningIsLogged())
+                .BDDfy();
+        }
+
+        [Theory]
+        [Trait("Bug", "1953")]
+        [InlineData(HttpStatusCode.OK)]
+        [InlineData(HttpStatusCode.PermanentRedirect)]
+        public void Should_LogInformation_when_status_is_less_than_BadRequest(HttpStatusCode status)
+        {
+            this.Given(x => x.GivenTheRequestIs())
+                .And(x => x.GivenTheRequesterReturns(new OkResponse<HttpResponseMessage>(new HttpResponseMessage(status))))
+                .When(x => x.WhenICallTheMiddleware())
+                .Then(x => x.InformationIsLogged())
+                .BDDfy();
+        }
+
+        [Theory]
+        [Trait("Bug", "1953")]
+        [InlineData(HttpStatusCode.BadRequest)]
+        [InlineData(HttpStatusCode.NotFound)]
+        public void Should_LogWarning_when_status_is_BadRequest_or_greater(HttpStatusCode status)
+        {
+            this.Given(x => x.GivenTheRequestIs())
+                .And(x => x.GivenTheRequesterReturns(new OkResponse<HttpResponseMessage>(new HttpResponseMessage(status))))
                 .When(x => x.WhenICallTheMiddleware())
                 .Then(x => x.WarningIsLogged())
                 .BDDfy();
@@ -119,18 +129,14 @@ namespace Ocelot.UnitTests.Requester
         private void WarningIsLogged()
         {
             _logger.Verify(
-                x => x.LogWarning(
-                    It.IsAny<string>()
-                   ),
+                x => x.LogWarning(It.IsAny<Func<string>>()),
                 Times.Once);
         }
 
         private void InformationIsLogged()
         {
             _logger.Verify(
-                x => x.LogInformation(
-                    It.IsAny<string>()
-                ),
+                x => x.LogInformation(It.IsAny<Func<string>>()),
                 Times.Once);
         }
     }

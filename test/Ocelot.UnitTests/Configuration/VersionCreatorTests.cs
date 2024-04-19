@@ -1,16 +1,8 @@
-﻿using System;
-
-using Ocelot.Configuration.Creator;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+﻿using Ocelot.Configuration.Creator;
 
 namespace Ocelot.UnitTests.Configuration
 {
-    public class VersionCreatorTests
+    public class VersionCreatorTests : UnitTest
     {
         private readonly HttpVersionCreator _creator;
         private string _input;

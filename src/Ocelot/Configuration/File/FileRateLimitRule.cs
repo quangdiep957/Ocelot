@@ -1,13 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Text;
-
-namespace Ocelot.Configuration.File
+﻿namespace Ocelot.Configuration.File
 {
     public class FileRateLimitRule
     {
         public FileRateLimitRule()
         {
             ClientWhitelist = new List<string>();
+        }
+
+        public FileRateLimitRule(FileRateLimitRule from)
+        {
+            ClientWhitelist = new(from.ClientWhitelist);
+            EnableRateLimiting = from.EnableRateLimiting;
+            Limit = from.Limit;
+            Period = from.Period;
+            PeriodTimespan = from.PeriodTimespan;
         }
 
         /// <summary>

@@ -1,18 +1,10 @@
-using System.Collections.Generic;
-
 using Ocelot.Configuration;
 using Ocelot.Configuration.Creator;
 using Ocelot.Configuration.File;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Configuration
 {
-    public class DownstreamAddressesCreatorTests
+    public class DownstreamAddressesCreatorTests : UnitTest
     {
         public DownstreamAddressesCreator _creator;
         private FileRoute _route;

@@ -1,26 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Threading.Tasks;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.Configuration.File;
-
-using Microsoft.AspNetCore.Http;
-
 using Ocelot.Middleware;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using System.Diagnostics;
 
 namespace Ocelot.AcceptanceTests
 {
     public class CustomMiddlewareTests : IDisposable
     {
-        private readonly string _configurationPath;
         private readonly Steps _steps;
         private int _counter;
         private readonly ServiceHandler _serviceHandler;
@@ -30,7 +16,6 @@ namespace Ocelot.AcceptanceTests
             _serviceHandler = new ServiceHandler();
             _counter = 0;
             _steps = new Steps();
-            _configurationPath = "ocelot.json";
         }
 
         [Fact]
@@ -45,7 +30,7 @@ namespace Ocelot.AcceptanceTests
                 },
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var fileConfiguration = new FileConfiguration
             {
@@ -70,7 +55,7 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, string.Empty))
-                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration, _configurationPath))
+                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration))
                 .And(x => _steps.GivenOcelotIsRunning(configuration))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
@@ -90,7 +75,7 @@ namespace Ocelot.AcceptanceTests
                 },
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var fileConfiguration = new FileConfiguration
             {
@@ -115,7 +100,7 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, string.Empty))
-                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration, _configurationPath))
+                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration))
                 .And(x => _steps.GivenOcelotIsRunning(configuration))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
@@ -135,7 +120,7 @@ namespace Ocelot.AcceptanceTests
                 },
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var fileConfiguration = new FileConfiguration
             {
@@ -160,7 +145,7 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, string.Empty))
-                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration, _configurationPath))
+                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration))
                 .And(x => _steps.GivenOcelotIsRunning(configuration))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
@@ -180,7 +165,7 @@ namespace Ocelot.AcceptanceTests
                 },
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var fileConfiguration = new FileConfiguration
             {
@@ -205,7 +190,7 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, string.Empty))
-                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration, _configurationPath))
+                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration))
                 .And(x => _steps.GivenOcelotIsRunning(configuration))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
@@ -225,7 +210,7 @@ namespace Ocelot.AcceptanceTests
                 },
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var fileConfiguration = new FileConfiguration
             {
@@ -250,7 +235,7 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, string.Empty))
-                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration, _configurationPath))
+                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration))
                 .And(x => _steps.GivenOcelotIsRunning(configuration))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
@@ -270,7 +255,7 @@ namespace Ocelot.AcceptanceTests
                 },
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var fileConfiguration = new FileConfiguration
             {
@@ -295,7 +280,53 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, string.Empty))
-                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration, _configurationPath))
+                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration))
+                .And(x => _steps.GivenOcelotIsRunning(configuration))
+                .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
+                .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
+                .And(x => x.ThenTheCounterIs(1))
+                .BDDfy();
+        }
+
+        [Fact]
+        public void should_not_throw_when_pipeline_terminates_early()
+        {
+            var configuration = new OcelotPipelineConfiguration
+            {
+                PreQueryStringBuilderMiddleware = (context, next) =>
+                    Task.Run(() =>
+                    {
+                        _counter++;
+                        return; // do not invoke the rest of the pipeline
+                    }),
+            };
+
+            var port = PortFinder.GetRandomPort();
+
+            var fileConfiguration = new FileConfiguration
+            {
+                Routes = new List<FileRoute>
+                    {
+                        new()
+                        {
+                            DownstreamPathTemplate = "/",
+                            DownstreamHostAndPorts = new List<FileHostAndPort>
+                            {
+                                new()
+                                {
+                                    Host = "localhost",
+                                    Port = port,
+                                },
+                            },
+                            DownstreamScheme = "http",
+                            UpstreamPathTemplate = "/",
+                            UpstreamHttpMethod = new List<string> { "Get" },
+                        },
+                    },
+            };
+
+            this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, ""))
+                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration))
                 .And(x => _steps.GivenOcelotIsRunning(configuration))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
@@ -319,7 +350,7 @@ namespace Ocelot.AcceptanceTests
                 return Task.CompletedTask;
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var fileConfiguration = new FileConfiguration
             {
@@ -344,8 +375,8 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, "/test"))
-                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration, _configurationPath))
-                .And(x => _steps.GivenOcelotIsRunningWithMiddleareBeforePipeline<FakeMiddleware>(callback))
+                .And(x => _steps.GivenThereIsAConfiguration(fileConfiguration))
+                .And(x => _steps.GivenOcelotIsRunningWithMiddlewareBeforePipeline<FakeMiddleware>(callback))
                 .When(x => _steps.WhenIGetUrlOnTheApiGateway("/"))
                 .Then(x => _steps.ThenTheStatusCodeShouldBe(HttpStatusCode.NotFound))
                 .BDDfy();

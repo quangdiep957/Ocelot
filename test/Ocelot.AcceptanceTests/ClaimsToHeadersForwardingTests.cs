@@ -1,23 +1,12 @@
-﻿using Xunit;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-
-using Ocelot.Configuration.File;
-
-using IdentityServer4.AccessTokenValidation;
+﻿using IdentityServer4.AccessTokenValidation;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-
-using TestStack.BDDfy;
+using Ocelot.Configuration.File;
+using System.Security.Claims;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
@@ -35,7 +24,7 @@ namespace Ocelot.AcceptanceTests
         {
             _serviceHandler = new ServiceHandler();
             _steps = new Steps();
-            var identityServerPort = RandomPortFinder.GetRandomPort();
+            var identityServerPort = PortFinder.GetRandomPort();
             _identityServerRootUrl = $"http://localhost:{identityServerPort}";
             _options = o =>
             {
@@ -62,7 +51,7 @@ namespace Ocelot.AcceptanceTests
                 },
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -201,7 +190,7 @@ namespace Ocelot.AcceptanceTests
 
             _identityServerBuilder.Start();
 
-            _steps.VerifyIdentiryServerStarted(url);
+            Steps.VerifyIdentityServerStarted(url);
         }
 
         public void Dispose()

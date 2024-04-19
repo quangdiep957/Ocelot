@@ -1,16 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-
-using Ocelot.Configuration.File;
-
 using Microsoft.AspNetCore.Http;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.Configuration.File;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -28,7 +17,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_when_get_converted_to_post()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -64,7 +53,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_when_get_converted_to_post_with_content()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -104,7 +93,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_when_get_converted_to_get_with_content()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {

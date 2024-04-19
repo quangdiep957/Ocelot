@@ -1,30 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-using Moq;
-
 using Ocelot.DependencyInjection;
 using Ocelot.Errors.Middleware;
 using Ocelot.Logging;
 using Ocelot.Middleware;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using System.Reflection;
 
 namespace Ocelot.UnitTests.Middleware
 {
-    public class OcelotPiplineBuilderTests
+    public class OcelotPiplineBuilderTests : UnitTest
     {
         private readonly IServiceCollection _services;
         private readonly IConfiguration _configRoot;
@@ -130,28 +117,28 @@ namespace Ocelot.UnitTests.Middleware
 
     internal class FakeLogger : IOcelotLogger
     {
-        public void LogCritical(string message, Exception exception)
-        {
-        }
+        public void LogCritical(string message, Exception exception) { }
 
-        public void LogDebug(string message)
-        {
-        }
+        public void LogCritical(Func<string> messageFactory, Exception exception) { }
 
-        public void LogError(string message, Exception exception)
-        {
-        }
+        public void LogError(string message, Exception exception) { }
 
-        public void LogInformation(string message)
-        {
-        }
+        public void LogError(Func<string> messageFactory, Exception exception) { }
 
-        public void LogTrace(string message)
-        {
-        }
+        public void LogDebug(string message) { }
 
-        public void LogWarning(string message)
-        {
-        }
+        public void LogDebug(Func<string> messageFactory) { }
+
+        public void LogInformation(string message) { }
+
+        public void LogInformation(Func<string> messageFactory) { }
+
+        public void LogWarning(string message) { }
+
+        public void LogTrace(string message) { }
+
+        public void LogTrace(Func<string> messageFactory) { }
+
+        public void LogWarning(Func<string> messageFactory) { }
     }
 }

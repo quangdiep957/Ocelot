@@ -1,8 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
-using Moq;
-
 using Ocelot.Configuration;
 using Ocelot.Configuration.Creator;
 using Ocelot.Configuration.Parser;
@@ -10,15 +5,9 @@ using Ocelot.Errors;
 using Ocelot.Logging;
 using Ocelot.Responses;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Configuration
 {
-    public class ClaimsToThingCreatorTests
+    public class ClaimsToThingCreatorTests : UnitTest
     {
         private readonly Mock<IClaimToThingConfigurationParser> _configParser;
         private Dictionary<string, string> _claimsToThings;
@@ -77,7 +66,7 @@ namespace Ocelot.UnitTests.Configuration
         private void ThenTheLoggerIsCalledCorrectly()
         {
             _logger
-                .Verify(x => x.LogDebug(It.IsAny<string>()), Times.Once);
+                .Verify(x => x.LogDebug(It.IsAny<string>), Times.Once);
         }
 
         private void ThenClaimsToThingsAreReturned()

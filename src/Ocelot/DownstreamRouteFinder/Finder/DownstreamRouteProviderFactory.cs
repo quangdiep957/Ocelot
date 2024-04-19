@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿using Microsoft.Extensions.DependencyInjection;
 using Ocelot.Configuration;
-
 using Ocelot.Logging;
-
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Ocelot.DownstreamRouteFinder.Finder
 {
@@ -28,6 +22,7 @@ namespace Ocelot.DownstreamRouteFinder.Finder
             if ((!config.Routes.Any() || config.Routes.All(x => string.IsNullOrEmpty(x.UpstreamTemplatePattern?.OriginalValue))) && IsServiceDiscovery(config.ServiceProviderConfiguration))
             {
                 _logger.LogInformation($"Selected {nameof(DownstreamRouteCreator)} as DownstreamRouteProvider for this request");
+
                 return _providers[nameof(DownstreamRouteCreator)];
             }
 

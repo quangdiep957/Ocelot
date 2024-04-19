@@ -2,15 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Ocelot.Configuration.File;
-using Shouldly;
-using System;
-using System.Collections.Generic;
+using Ocelot.WebSockets;
 using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using TestStack.BDDfy;
-using Xunit;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -34,14 +28,14 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void ShouldProxyWebsocketInputToDownstreamServiceAndUseServiceDiscoveryAndLoadBalancer()
         {
-            var downstreamPort = RandomPortFinder.GetRandomPort();
+            var downstreamPort = PortFinder.GetRandomPort();
             var downstreamHost = "localhost";
 
-            var secondDownstreamPort = RandomPortFinder.GetRandomPort();
+            var secondDownstreamPort = PortFinder.GetRandomPort();
             var secondDownstreamHost = "localhost";
 
             var serviceName = "websockets";
-            var consulPort = RandomPortFinder.GetRandomPort();
+            var consulPort = PortFinder.GetRandomPort();
             var fakeConsulServiceDiscoveryUrl = $"http://localhost:{consulPort}";
             var serviceEntryOne = new ServiceEntry
             {
@@ -132,7 +126,7 @@ namespace Ocelot.AcceptanceTests
                 if (context.Request.Path.Value == $"/v1/health/service/{serviceName}")
                 {
                     var json = JsonConvert.SerializeObject(_serviceEntries);
-                    context.Response.Headers.Add("Content-Type", "application/json");
+                    context.Response.Headers.Append("Content-Type", "application/json");
                     await context.Response.WriteAsync(json);
                 }
             });
@@ -149,7 +143,7 @@ namespace Ocelot.AcceptanceTests
 
         private async Task StartClient(string url)
         {
-            var client = new ClientWebSocket();
+            IClientWebSocket client = new ClientWebSocketProxy();
 
             await client.ConnectAsync(new Uri(url), CancellationToken.None);
 
@@ -201,7 +195,7 @@ namespace Ocelot.AcceptanceTests
         {
             await Task.Delay(500);
 
-            var client = new ClientWebSocket();
+            IClientWebSocket client = new ClientWebSocketProxy();
 
             await client.ConnectAsync(new Uri(url), CancellationToken.None);
 

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Http;
-
-using Moq;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.DownstreamRouteFinder;
@@ -14,18 +7,11 @@ using Ocelot.DownstreamRouteFinder.Middleware;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Logging;
 using Ocelot.Middleware;
-
 using Ocelot.Responses;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
 
 namespace Ocelot.UnitTests.DownstreamRouteFinder
 {
-    public class DownstreamRouteFinderMiddlewareTests
+    public class DownstreamRouteFinderMiddlewareTests : UnitTest
     {
         private readonly Mock<IDownstreamRouteProvider> _finder;
         private readonly Mock<IDownstreamRouteProviderFactory> _factory;

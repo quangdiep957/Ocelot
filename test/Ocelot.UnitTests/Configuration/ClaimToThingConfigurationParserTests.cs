@@ -1,20 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-using Ocelot.Configuration;
+﻿using Ocelot.Configuration;
 using Ocelot.Configuration.Parser;
 using Ocelot.Errors;
 using Ocelot.Responses;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Configuration
 {
-    public class ClaimToThingConfigurationParserTests
+    public class ClaimToThingConfigurationParserTests : UnitTest
     {
         private Dictionary<string, string> _dictionary;
         private readonly IClaimToThingConfigurationParser _claimToThingConfigurationParser;

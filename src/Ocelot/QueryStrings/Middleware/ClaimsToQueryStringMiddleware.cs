@@ -1,10 +1,5 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.Logging;
-
-using Microsoft.AspNetCore.Http;
-
 using Ocelot.Middleware;
 
 namespace Ocelot.QueryStrings.Middleware
@@ -29,7 +24,7 @@ namespace Ocelot.QueryStrings.Middleware
 
             if (downstreamRoute.ClaimsToQueries.Any())
             {
-                Logger.LogInformation($"{downstreamRoute.DownstreamPathTemplate.Value} has instructions to convert claims to queries");
+                Logger.LogInformation(() => $"{downstreamRoute.DownstreamPathTemplate.Value} has instructions to convert claims to queries");
 
                 var downstreamRequest = httpContext.Items.DownstreamRequest();
 
