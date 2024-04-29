@@ -1,21 +1,12 @@
-﻿using Moq;
-
-using Ocelot.Configuration;
+﻿using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.LoadBalancer.LoadBalancers;
-using Ocelot.ServiceDiscovery.Providers;
-
 using Ocelot.Responses;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.ServiceDiscovery.Providers;
 
 namespace Ocelot.UnitTests.LoadBalancer
 {
-    public class NoLoadBalancerCreatorTests
+    public class NoLoadBalancerCreatorTests : UnitTest
     {
         private readonly NoLoadBalancerCreator _creator;
         private readonly Mock<IServiceDiscoveryProvider> _serviceProvider;

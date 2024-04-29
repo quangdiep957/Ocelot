@@ -1,16 +1,15 @@
-﻿using System;
-
+﻿using Microsoft.Extensions.DependencyInjection;
 using Ocelot.Configuration.File;
-
 using Ocelot.Logging;
-
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Ocelot.Configuration.Creator
 {
     public class HttpHandlerOptionsCreator : IHttpHandlerOptionsCreator
     {
         private readonly ITracer _tracer;
+
+        //todo: this should be configurable and available as global config parameter in ocelot.json
+        public const int DefaultPooledConnectionLifetimeSeconds = 120;
 
         public HttpHandlerOptionsCreator(IServiceProvider services)
         {
@@ -23,9 +22,10 @@ namespace Ocelot.Configuration.Creator
 
             //be sure that maxConnectionPerServer is in correct range of values
             var maxConnectionPerServer = (options.MaxConnectionsPerServer > 0) ? options.MaxConnectionsPerServer : int.MaxValue;
+            var pooledConnectionLifetime = TimeSpan.FromSeconds(options.PooledConnectionLifetimeSeconds ?? DefaultPooledConnectionLifetimeSeconds);
 
             return new HttpHandlerOptions(options.AllowAutoRedirect,
-                options.UseCookieContainer, useTracing, options.UseProxy, maxConnectionPerServer);
+                options.UseCookieContainer, useTracing, options.UseProxy, maxConnectionPerServer, pooledConnectionLifetime);
         }
     }
 }

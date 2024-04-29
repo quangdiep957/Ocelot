@@ -1,24 +1,14 @@
-﻿using Ocelot.Middleware;
-using System.Net.Http;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Http;
-
-using Moq;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.DownstreamRouteFinder.Finder;
 using Ocelot.Errors;
 using Ocelot.Logging;
+using Ocelot.Middleware;
 using Ocelot.Responder;
 using Ocelot.Responder.Middleware;
 
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Responder
 {
-    public class ResponderMiddlewareTests
+    public class ResponderMiddlewareTests : UnitTest
     {
         private readonly Mock<IHttpResponder> _responder;
         private readonly Mock<IErrorsToHttpStatusCodeMapper> _codeMapper;
@@ -56,6 +46,17 @@ namespace Ocelot.UnitTests.Responder
                 .And(x => x.GivenThereArePipelineErrors(new UnableToFindDownstreamRouteError("/path", "GET")))
                 .When(x => x.WhenICallTheMiddleware())
                 .Then(x => x.ThenThereAreNoErrors())
+                .BDDfy();
+        }
+
+        [Fact]
+        public void should_not_call_responder_when_null_downstream_response()
+        {
+            this._responder.Reset();
+            this.Given(x => x.GivenTheHttpResponseMessageIs(null))
+                .When(x => x.WhenICallTheMiddleware())
+                .Then(x => x.ThenThereAreNoErrors())
+                .Then(x => x._responder.VerifyNoOtherCalls())
                 .BDDfy();
         }
 

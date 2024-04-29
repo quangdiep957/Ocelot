@@ -1,19 +1,10 @@
-using System;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-
-using Moq;
-
 using Ocelot.Logging;
-
-using TestStack.BDDfy;
-
-using Xunit;
 
 namespace Ocelot.UnitTests.Logging
 {
-    public class OcelotDiagnosticListenerTests
+    public class OcelotDiagnosticListenerTests : UnitTest
     {
         private readonly OcelotDiagnosticListener _listener;
         private readonly Mock<IOcelotLoggerFactory> _factory;
@@ -91,7 +82,7 @@ namespace Ocelot.UnitTests.Logging
         private void ThenTheLogIs(string expected)
         {
             _logger.Verify(
-                x => x.LogTrace(expected));
+                x => x.LogTrace(It.Is<Func<string>>(c => c.Invoke() == expected)));
         }
     }
 }

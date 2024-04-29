@@ -1,20 +1,11 @@
-using System.Collections.Generic;
-
 using Microsoft.AspNetCore.Http;
-
 using Ocelot.Configuration;
 using Ocelot.Headers;
 using Ocelot.Responses;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Headers
 {
-    public class HttpContextRequestHeaderReplacerTests
+    public class HttpContextRequestHeaderReplacerTests : UnitTest
     {
         private HttpContext _context;
         private List<HeaderFindAndReplace> _fAndRs;
@@ -30,7 +21,7 @@ namespace Ocelot.UnitTests.Headers
         public void should_replace_headers()
         {
             var context = new DefaultHttpContext();
-            context.Request.Headers.Add("test", "test");
+            context.Request.Headers.Append("test", "test");
 
             var fAndRs = new List<HeaderFindAndReplace> { new("test", "test", "chiken", 0) };
 
@@ -45,7 +36,7 @@ namespace Ocelot.UnitTests.Headers
         public void should_not_replace_headers()
         {
             var context = new DefaultHttpContext();
-            context.Request.Headers.Add("test", "test");
+            context.Request.Headers.Append("test", "test");
 
             var fAndRs = new List<HeaderFindAndReplace>();
 

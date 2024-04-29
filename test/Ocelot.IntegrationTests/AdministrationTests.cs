@@ -1,13 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-
 using IdentityServer4.Models;
 using IdentityServer4.Test;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,21 +8,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-
 using Newtonsoft.Json;
-
 using Ocelot.Administration;
 using Ocelot.Cache;
 using Ocelot.Configuration.ChangeTracking;
 using Ocelot.Configuration.File;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Reflection;
 
 namespace Ocelot.IntegrationTests
 {
@@ -58,7 +45,7 @@ namespace Ocelot.IntegrationTests
         }
 
         [Fact]
-        public void should_return_response_401_with_call_re_routes_controller()
+        public void Should_return_response_401_with_call_re_routes_controller()
         {
             var configuration = new FileConfiguration();
 
@@ -71,7 +58,7 @@ namespace Ocelot.IntegrationTests
 
         //this seems to be be answer https://github.com/IdentityServer/IdentityServer4/issues/4914
         [Fact]
-        public void should_return_response_200_with_call_re_routes_controller()
+        public void Should_return_response_200_with_call_re_routes_controller()
         {
             var configuration = new FileConfiguration();
 
@@ -85,10 +72,11 @@ namespace Ocelot.IntegrationTests
         }
 
         [Fact]
-        public void should_return_response_200_with_call_re_routes_controller_using_base_url_added_in_file_config()
+        public void Should_return_response_200_with_call_re_routes_controller_using_base_url_added_in_file_config()
         {
             _httpClient = new HttpClient();
-            _ocelotBaseUrl = "http://localhost:5011";
+            var port = PortFinder.GetRandomPort();
+            _ocelotBaseUrl = $"http://localhost:{port}";
             _httpClient.BaseAddress = new Uri(_ocelotBaseUrl);
 
             var configuration = new FileConfiguration
@@ -109,22 +97,46 @@ namespace Ocelot.IntegrationTests
         }
 
         [Fact]
-        public void should_be_able_to_use_token_from_ocelot_a_on_ocelot_b()
+        public void Should_return_OK_status_and_multiline_indented_json_response_with_json_options_for_custom_builder()
         {
             var configuration = new FileConfiguration();
+
+            Func<IMvcCoreBuilder, Assembly, IMvcCoreBuilder> customBuilder = (builder, assembly) =>
+            {
+                return builder.AddApplicationPart(assembly)
+                    .AddControllersAsServices()
+                    .AddAuthorization()
+                    .AddJsonOptions(options => { options.JsonSerializerOptions.WriteIndented = true; });
+            };
+
+            this.Given(x => GivenThereIsAConfiguration(configuration))
+                .And(x => GivenOcelotUsingBuilderIsRunning(customBuilder))
+                .And(x => GivenIHaveAnOcelotToken("/administration"))
+                .And(x => GivenIHaveAddedATokenToMyRequest())
+                .When(x => WhenIGetUrlOnTheApiGateway("/administration/configuration"))
+                .Then(x => ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
+                .Then(x => ThenTheResultHaveMultiLineIndentedJson())
+                .BDDfy();
+        }
+        
+        [Fact]
+        public void Should_be_able_to_use_token_from_ocelot_a_on_ocelot_b()
+        {
+            var configuration = new FileConfiguration();
+            var port = PortFinder.GetRandomPort();
 
             this.Given(x => GivenThereIsAConfiguration(configuration))
                 .And(x => GivenIdentityServerSigningEnvironmentalVariablesAreSet())
                 .And(x => GivenOcelotIsRunning())
                 .And(x => GivenIHaveAnOcelotToken("/administration"))
-                .And(x => GivenAnotherOcelotIsRunning("http://localhost:5017"))
+                .And(x => GivenAnotherOcelotIsRunning($"http://localhost:{port}"))
                 .When(x => WhenIGetUrlOnTheSecondOcelot("/administration/configuration"))
                 .Then(x => ThenTheStatusCodeShouldBe(HttpStatusCode.OK))
                 .BDDfy();
         }
 
         [Fact]
-        public void should_return_file_configuration()
+        public void Should_return_file_configuration()
         {
             var configuration = new FileConfiguration
             {
@@ -193,7 +205,7 @@ namespace Ocelot.IntegrationTests
         }
 
         [Fact]
-        public void should_get_file_configuration_edit_and_post_updated_version()
+        public void Should_get_file_configuration_edit_and_post_updated_version()
         {
             var initialConfiguration = new FileConfiguration
             {
@@ -266,7 +278,7 @@ namespace Ocelot.IntegrationTests
                         DownstreamScheme = "https",
                         DownstreamPathTemplate = "/blooper/{productId}",
                         UpstreamHttpMethod = new List<string> { "post" },
-                        UpstreamPathTemplate = "/test",
+                        UpstreamPathTemplate = "/test/{productId}",
                     },
                 },
             };
@@ -286,7 +298,7 @@ namespace Ocelot.IntegrationTests
         }
 
         [Fact]
-        public void should_activate_change_token_when_configuration_is_updated()
+        public void Should_activate_change_token_when_configuration_is_updated()
         {
             var configuration = new FileConfiguration
             {
@@ -344,10 +356,10 @@ namespace Ocelot.IntegrationTests
         }
 
         [Fact]
-        public void should_get_file_configuration_edit_and_post_updated_version_redirecting_route()
+        public void Should_get_file_configuration_edit_and_post_updated_version_redirecting_route()
         {
-            var fooPort = 47689;
-            var barPort = 27654;
+            var fooPort = PortFinder.GetRandomPort();
+            var barPort = PortFinder.GetRandomPort();
 
             var initialConfiguration = new FileConfiguration
             {
@@ -416,7 +428,7 @@ namespace Ocelot.IntegrationTests
         }
 
         [Fact]
-        public void should_clear_region()
+        public void Should_clear_region()
         {
             var initialConfiguration = new FileConfiguration
             {
@@ -476,11 +488,12 @@ namespace Ocelot.IntegrationTests
         }
 
         [Fact]
-        public void should_return_response_200_with_call_re_routes_controller_when_using_own_identity_server_to_secure_admin_area()
+        public void Should_return_response_200_with_call_re_routes_controller_when_using_own_identity_server_to_secure_admin_area()
         {
             var configuration = new FileConfiguration();
 
-            var identityServerRootUrl = "http://localhost:5123";
+            var port = PortFinder.GetRandomPort();
+            var identityServerRootUrl = $"http://localhost:{port}";
 
             Action<JwtBearerOptions> options = o =>
             {
@@ -515,13 +528,11 @@ namespace Ocelot.IntegrationTests
             };
             var content = new FormUrlEncodedContent(formData);
 
-            using (var httpClient = new HttpClient())
-            {
-                var response = httpClient.PostAsync($"{url}/connect/token", content).Result;
-                var responseContent = response.Content.ReadAsStringAsync().Result;
-                response.EnsureSuccessStatusCode();
-                _token = JsonConvert.DeserializeObject<BearerToken>(responseContent);
-            }
+            using var httpClient = new HttpClient();
+            var response = httpClient.PostAsync($"{url}/connect/token", content).Result;
+            var responseContent = response.Content.ReadAsStringAsync().Result;
+            response.EnsureSuccessStatusCode();
+            _token = JsonConvert.DeserializeObject<BearerToken>(responseContent);
         }
 
         private void GivenThereIsAnIdentityServerOn(string url, string apiName)
@@ -583,11 +594,9 @@ namespace Ocelot.IntegrationTests
 
             _identityServerBuilder.Start();
 
-            using (var httpClient = new HttpClient())
-            {
-                var response = httpClient.GetAsync($"{url}/.well-known/openid-configuration").Result;
-                response.EnsureSuccessStatusCode();
-            }
+            using var httpClient = new HttpClient();
+            var response = httpClient.GetAsync($"{url}/.well-known/openid-configuration").Result;
+            response.EnsureSuccessStatusCode();
         }
 
         private void GivenAnotherOcelotIsRunning(string baseUrl)
@@ -746,7 +755,7 @@ namespace Ocelot.IntegrationTests
             _builder.Start();
         }
 
-        private void GivenOcelotIsRunning()
+        private void OcelotIsRunningWithServices(Action<IServiceCollection> configureServices)
         {
             _webHostBuilder = Host.CreateDefaultBuilder()
                 .ConfigureWebHost(webBuilder =>
@@ -763,21 +772,34 @@ namespace Ocelot.IntegrationTests
                         config.AddJsonFile("ocelot.json", false, false);
                         config.AddEnvironmentVariables();
                     })
-                    .ConfigureServices(x =>
-                    {
-                        x.AddMvc(s => s.EnableEndpointRouting = false);
-                        x.AddOcelot()
-                        .AddAdministration("/administration", "secret");
-                    })
+                    .ConfigureServices(configureServices) // !!!
                     .Configure(app =>
                     {
                         app.UseOcelot().Wait();
                     });
                 });
-
             _builder = _webHostBuilder.Build();
-
             _builder.Start();
+        }
+
+        private void GivenOcelotIsRunning()
+        {
+            OcelotIsRunningWithServices(services =>
+            {
+                services.AddMvc(s => s.EnableEndpointRouting = false);
+                services.AddOcelot()
+                    .AddAdministration("/administration", "secret");
+            });
+        }
+
+        private void GivenOcelotUsingBuilderIsRunning(Func<IMvcCoreBuilder, Assembly, IMvcCoreBuilder> customBuilder)
+        {
+            OcelotIsRunningWithServices(services =>
+            {
+                services.AddMvc(s => s.EnableEndpointRouting = false);
+                services.AddOcelotUsingBuilder(customBuilder)
+                    .AddAdministration("/administration", "secret");
+            });
         }
 
         private void GivenOcelotIsRunningWithNoWebHostBuilder(string baseUrl)
@@ -828,7 +850,7 @@ namespace Ocelot.IntegrationTests
 
             File.WriteAllText(configurationPath, jsonConfiguration);
 
-            var text = File.ReadAllText(configurationPath);
+            _ = File.ReadAllText(configurationPath);
 
             configurationPath = $"{AppContext.BaseDirectory}/ocelot.json";
 
@@ -839,7 +861,7 @@ namespace Ocelot.IntegrationTests
 
             File.WriteAllText(configurationPath, jsonConfiguration);
 
-            text = File.ReadAllText(configurationPath);
+            _ = File.ReadAllText(configurationPath);
         }
 
         private void WhenIGetUrlOnTheApiGateway(string url)
@@ -856,6 +878,20 @@ namespace Ocelot.IntegrationTests
         {
             _response.StatusCode.ShouldBe(expectedHttpStatusCode);
         }
+        
+        private void ThenTheResultHaveMultiLineIndentedJson()
+        {
+            const string indent = "  ";
+            const int total = 46, skip = 1;
+            var lines = _response.Content.ReadAsStringAsync().Result.Split(Environment.NewLine);
+            lines.Length.ShouldBe(total);
+            lines.First().ShouldNotStartWith(indent);
+
+            lines.Skip(skip).Take(total - skip - 1).ToList()
+                .ForEach(line => line.ShouldStartWith(indent));
+
+            lines.Last().ShouldNotStartWith(indent);
+        }
 
         public void Dispose()
         {
@@ -864,6 +900,7 @@ namespace Ocelot.IntegrationTests
             _builder?.Dispose();
             _httpClient?.Dispose();
             _identityServerBuilder?.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         private void GivenThereIsAFooServiceRunningOn(string baseUrl)

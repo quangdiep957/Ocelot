@@ -1,18 +1,9 @@
-using System;
-using System.Collections.Generic;
-
 using Ocelot.ServiceDiscovery.Providers;
 using Ocelot.Values;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.ServiceDiscovery
 {
-    public class ConfigurationServiceProviderTests
+    public class ConfigurationServiceProviderTests : UnitTest
     {
         private ConfigurationServiceProvider _serviceProvider;
         private List<Service> _result;
@@ -42,7 +33,7 @@ namespace Ocelot.UnitTests.ServiceDiscovery
         private void WhenIGetTheService()
         {
             _serviceProvider = new ConfigurationServiceProvider(_expected);
-            _result = _serviceProvider.Get().Result;
+            _result = _serviceProvider.GetAsync().Result;
         }
 
         private void ThenTheFollowingIsReturned(List<Service> services)

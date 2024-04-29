@@ -1,16 +1,12 @@
-﻿using Moq;
-using Ocelot.Configuration;
+﻿using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.LoadBalancer.LoadBalancers;
 using Ocelot.Responses;
 using Ocelot.ServiceDiscovery.Providers;
-using Shouldly;
-using TestStack.BDDfy;
-using Xunit;
 
 namespace Ocelot.UnitTests.LoadBalancer
 {
-    public class RoundRobinCreatorTests
+    public class RoundRobinCreatorTests : UnitTest
     {
         private readonly RoundRobinCreator _creator;
         private readonly Mock<IServiceDiscoveryProvider> _serviceProvider;

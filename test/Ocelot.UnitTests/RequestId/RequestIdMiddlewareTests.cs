@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Http;
-
-using Moq;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.Configuration.Builder;
 using Ocelot.DownstreamRouteFinder;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
@@ -16,18 +7,11 @@ using Ocelot.Logging;
 using Ocelot.Middleware;
 using Ocelot.Request.Middleware;
 using Ocelot.RequestId.Middleware;
-
 using Ocelot.Responses;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
 
 namespace Ocelot.UnitTests.RequestId
 {
-    public class RequestIdMiddlewareTests
+    public class RequestIdMiddlewareTests : UnitTest
     {
         private readonly HttpRequestMessage _downstreamRequest;
         private string _value;
@@ -48,7 +32,7 @@ namespace Ocelot.UnitTests.RequestId
             _loggerFactory.Setup(x => x.CreateLogger<RequestIdMiddleware>()).Returns(_logger.Object);
             _next = context =>
             {
-                _httpContext.Response.Headers.Add("LSRequestId", _httpContext.TraceIdentifier);
+                _httpContext.Response.Headers.Append("LSRequestId", _httpContext.TraceIdentifier);
                 return Task.CompletedTask;
             };
             _middleware = new RequestIdMiddleware(_next, _loggerFactory.Object, _repo.Object);

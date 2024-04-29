@@ -1,25 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Security.Claims;
-
-using Ocelot.Configuration.File;
-
-using IdentityServer4.AccessTokenValidation;
+﻿using IdentityServer4.AccessTokenValidation;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.Configuration.File;
+using System.Security.Claims;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -35,7 +22,7 @@ namespace Ocelot.AcceptanceTests
         public ClaimsToQueryStringForwardingTests()
         {
             _steps = new Steps();
-            var identityServerPort = RandomPortFinder.GetRandomPort();
+            var identityServerPort = PortFinder.GetRandomPort();
             _identityServerRootUrl = $"http://localhost:{identityServerPort}";
             _options = o =>
             {
@@ -62,7 +49,7 @@ namespace Ocelot.AcceptanceTests
                 },
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -128,7 +115,7 @@ namespace Ocelot.AcceptanceTests
                 },
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -290,7 +277,7 @@ namespace Ocelot.AcceptanceTests
 
             _identityServerBuilder.Start();
 
-            _steps.VerifyIdentiryServerStarted(url);
+            Steps.VerifyIdentityServerStarted(url);
         }
 
         public void Dispose()

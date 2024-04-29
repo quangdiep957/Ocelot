@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.Configuration.File;
 using Ocelot.Configuration.Repository;
-
-using Microsoft.AspNetCore.Http;
-
 using Ocelot.Responses;
-
-using TestStack.BDDfy;
-
-using Xunit;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -31,7 +20,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_not_try_and_write_to_disk_on_startup_when_not_using_admin_api()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {

@@ -1,10 +1,4 @@
 using Ocelot.Configuration.File;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using TestStack.BDDfy;
-using Xunit;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -22,7 +16,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void ShouldReturnResponse304WhenServiceReturns304()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {

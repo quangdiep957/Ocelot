@@ -1,17 +1,9 @@
-﻿using System.Collections.Generic;
-
-using Ocelot.Middleware;
+﻿using Ocelot.Middleware;
 using Ocelot.Responses;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
 
 namespace Ocelot.UnitTests.Headers
 {
-    public class RemoveHeadersTests
+    public class RemoveHeadersTests : UnitTest
     {
         private List<Header> _headers;
         private readonly Ocelot.Headers.RemoveOutputHeaders _removeOutputHeaders;

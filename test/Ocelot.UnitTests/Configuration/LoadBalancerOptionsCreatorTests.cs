@@ -2,15 +2,9 @@ using Ocelot.Configuration;
 using Ocelot.Configuration.Creator;
 using Ocelot.Configuration.File;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Configuration
 {
-    public class LoadBalancerOptionsCreatorTests
+    public class LoadBalancerOptionsCreatorTests : UnitTest
     {
         private readonly ILoadBalancerOptionsCreator _creator;
         private FileLoadBalancerOptions _fileLoadBalancerOptions;

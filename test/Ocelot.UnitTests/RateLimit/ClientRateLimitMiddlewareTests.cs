@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Moq;
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.Logging;
@@ -8,17 +7,10 @@ using Ocelot.Middleware;
 using Ocelot.RateLimit;
 using Ocelot.RateLimit.Middleware;
 using Ocelot.Request.Middleware;
-using Shouldly;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
-using TestStack.BDDfy;
-using Xunit;
 
 namespace Ocelot.UnitTests.RateLimit
 {
-    public class ClientRateLimitMiddlewareTests
+    public class ClientRateLimitMiddlewareTests : UnitTest
     {
         private readonly IRateLimitCounterHandler _rateLimitCounterHandler;
         private readonly Mock<IOcelotLoggerFactory> _loggerFactory;

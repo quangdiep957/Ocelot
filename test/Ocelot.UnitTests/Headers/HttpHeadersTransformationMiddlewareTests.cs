@@ -1,11 +1,4 @@
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Http;
-
-using Moq;
-
 using Ocelot.Authorization.Middleware;
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
@@ -15,13 +8,9 @@ using Ocelot.Logging;
 using Ocelot.Middleware;
 using Ocelot.Request.Middleware;
 
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Headers
 {
-    public class HttpHeadersTransformationMiddlewareTests
+    public class HttpHeadersTransformationMiddlewareTests : UnitTest
     {
         private readonly Mock<IHttpContextRequestHeaderReplacer> _preReplacer;
         private readonly Mock<IHttpResponseHeaderReplacer> _postReplacer;
@@ -117,7 +106,7 @@ namespace Ocelot.UnitTests.Headers
 
         private void GivenTheFollowingRequest()
         {
-            _httpContext.Request.Headers.Add("test", "test");
+            _httpContext.Request.Headers.Append("test", "test");
         }
     }
 }

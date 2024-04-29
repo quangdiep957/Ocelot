@@ -1,23 +1,11 @@
-﻿using Xunit;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-
-using Ocelot.Configuration.File;
-
-using IdentityServer4.AccessTokenValidation;
+﻿using IdentityServer4.AccessTokenValidation;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-
-using Shouldly;
-
-using TestStack.BDDfy;
+using Ocelot.Configuration.File;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -32,7 +20,7 @@ namespace Ocelot.AcceptanceTests
 
         public ClaimsToDownstreamPathTests()
         {
-            var identityServerPort = RandomPortFinder.GetRandomPort();
+            var identityServerPort = PortFinder.GetRandomPort();
             _identityServerRootUrl = $"http://localhost:{identityServerPort}";
             _steps = new Steps();
             _options = o =>
@@ -55,7 +43,7 @@ namespace Ocelot.AcceptanceTests
                 SubjectId = "registered|1231231",
             };
 
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -73,7 +61,7 @@ namespace Ocelot.AcceptanceTests
                                },
                            },
                            DownstreamScheme = "http",
-                           UpstreamPathTemplate = "/users",
+                           UpstreamPathTemplate = "/users/{userId}",
                            UpstreamHttpMethod = new List<string> { "Get" },
                            AuthenticationOptions = new FileAuthenticationOptions
                            {
@@ -208,7 +196,7 @@ namespace Ocelot.AcceptanceTests
 
             _identityServerBuilder.Start();
 
-            _steps.VerifyIdentiryServerStarted(url);
+            Steps.VerifyIdentityServerStarted(url);
         }
 
         public void Dispose()

@@ -2,15 +2,9 @@ using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Responses;
 using Ocelot.Values;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.DownstreamRouteFinder.UrlMatcher
 {
-    public class RegExUrlMatcherTests
+    public class RegExUrlMatcherTests : UnitTest
     {
         private readonly IUrlPathToUrlTemplateMatcher _urlMatcher;
         private string _path;

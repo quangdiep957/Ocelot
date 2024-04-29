@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using Moq;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.LoadBalancer.LoadBalancers;
@@ -10,16 +6,9 @@ using Ocelot.Responses;
 using Ocelot.ServiceDiscovery.Providers;
 using Ocelot.Values;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-using Microsoft.AspNetCore.Http;
-
 namespace Ocelot.UnitTests.LoadBalancer
 {
-    public class DelegateInvokingLoadBalancerCreatorTests
+    public class DelegateInvokingLoadBalancerCreatorTests : UnitTest
     {
         private DelegateInvokingLoadBalancerCreator<FakeLoadBalancer> _creator;
         private Func<DownstreamRoute, IServiceDiscoveryProvider, ILoadBalancer> _creatorFunc;

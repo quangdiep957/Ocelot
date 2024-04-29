@@ -1,24 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using Moq;
-
+﻿using Microsoft.AspNetCore.Http;
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.LoadBalancer.LoadBalancers;
 using Ocelot.Responses;
 using Ocelot.Values;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-using Microsoft.AspNetCore.Http;
-
 namespace Ocelot.UnitTests.LoadBalancer
 {
-    public class LoadBalancerHouseTests
+    public class LoadBalancerHouseTests : UnitTest
     {
         private DownstreamRoute _route;
         private ILoadBalancer _loadBalancer;

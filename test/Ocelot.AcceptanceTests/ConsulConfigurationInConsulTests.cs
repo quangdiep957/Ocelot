@@ -1,26 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Text;
-
-using Ocelot.Cache;
-
-using Ocelot.Configuration.File;
-
-using Consul;
-
+﻿using Consul;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-
 using Newtonsoft.Json;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.Cache;
+using Ocelot.Configuration.File;
+using System.Text;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -41,8 +26,8 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_return_response_200_with_simple_url()
         {
-            var consulPort = RandomPortFinder.GetRandomPort();
-            var servicePort = RandomPortFinder.GetRandomPort();
+            var consulPort = PortFinder.GetRandomPort();
+            var servicePort = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -90,8 +75,8 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_load_configuration_out_of_consul()
         {
-            var consulPort = RandomPortFinder.GetRandomPort();
-            var servicePort = RandomPortFinder.GetRandomPort();
+            var consulPort = PortFinder.GetRandomPort();
+            var servicePort = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -153,8 +138,8 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_load_configuration_out_of_consul_if_it_is_changed()
         {
-            var consulPort = RandomPortFinder.GetRandomPort();
-            var servicePort = RandomPortFinder.GetRandomPort();
+            var consulPort = PortFinder.GetRandomPort();
+            var servicePort = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -249,9 +234,9 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_handle_request_to_consul_for_downstream_service_and_make_request_no_re_routes_and_rate_limit()
         {
-            var consulPort = RandomPortFinder.GetRandomPort();
+            var consulPort = PortFinder.GetRandomPort();
             const string serviceName = "web";
-            var downstreamServicePort = RandomPortFinder.GetRandomPort();
+            var downstreamServicePort = PortFinder.GetRandomPort();
             var downstreamServiceOneUrl = $"http://localhost:{downstreamServicePort}";
             var fakeConsulServiceDiscoveryUrl = $"http://localhost:{consulPort}";
             var serviceEntryOne = new ServiceEntry
@@ -385,7 +370,7 @@ namespace Ocelot.AcceptanceTests
 
                                         var kvp = new FakeConsulGetResponse(base64);
                                         json = JsonConvert.SerializeObject(new[] { kvp });
-                                        context.Response.Headers.Add("Content-Type", "application/json");
+                                        context.Response.Headers.Append("Content-Type", "application/json");
                                         await context.Response.WriteAsync(json);
                                     }
                                     else if (context.Request.Method.ToLower() == "put" && context.Request.Path.Value == "/v1/kv/InternalConfiguration")
@@ -413,7 +398,7 @@ namespace Ocelot.AcceptanceTests
                                     else if (context.Request.Path.Value == $"/v1/health/service/{serviceName}")
                                     {
                                         var json = JsonConvert.SerializeObject(_consulServices);
-                                        context.Response.Headers.Add("Content-Type", "application/json");
+                                        context.Response.Headers.Append("Content-Type", "application/json");
                                         await context.Response.WriteAsync(json);
                                     }
                                 });

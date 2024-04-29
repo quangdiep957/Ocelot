@@ -1,21 +1,9 @@
-using System;
-using System.Net;
-using System.Net.Http;
-
 using Microsoft.AspNetCore.Http;
-
-using Moq;
-
 using Ocelot.Infrastructure;
 using Ocelot.Infrastructure.RequestData;
 using Ocelot.Middleware;
 using Ocelot.Request.Middleware;
-
 using Ocelot.Responses;
-
-using Shouldly;
-
-using Xunit;
 
 namespace Ocelot.UnitTests.Infrastructure
 {
@@ -135,7 +123,7 @@ namespace Ocelot.UnitTests.Infrastructure
         {
             var upstreamHost = "UpstreamHostA";
             var httpContext = new DefaultHttpContext();
-            httpContext.Request.Headers.Add("Host", upstreamHost);
+            httpContext.Request.Headers.Append("Host", upstreamHost);
             _accessor.Setup(x => x.HttpContext).Returns(httpContext);
             var result = _placeholders.Get("{UpstreamHost}");
             result.Data.ShouldBe(upstreamHost);

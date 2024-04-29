@@ -1,18 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-
-using Moq;
-
 using Ocelot.Cache;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
 
 namespace Ocelot.UnitTests.Controllers
 {
-    public class OutputCacheControllerTests
+    public class OutputCacheControllerTests : UnitTest
     {
         private readonly OutputCacheController _controller;
         private readonly Mock<IOcelotCache<CachedResponse>> _cache;

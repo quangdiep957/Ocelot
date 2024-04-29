@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-
-using Ocelot.Configuration.File;
-
-using Microsoft.AspNetCore.Http;
-
+﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-
+using Ocelot.Configuration.File;
 using Steeltoe.Common.Discovery;
-
-using TestStack.BDDfy;
-
-using Xunit;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -37,7 +26,7 @@ namespace Ocelot.AcceptanceTests
             Environment.SetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER", dotnetRunningInContainer.ToString());
             var eurekaPort = 8761;
             var serviceName = "product";
-            var downstreamServicePort = RandomPortFinder.GetRandomPort();
+            var downstreamServicePort = PortFinder.GetRandomPort();
             var downstreamServiceOneUrl = $"http://localhost:{downstreamServicePort}";
             var fakeEurekaServiceDiscoveryUrl = $"http://localhost:{eurekaPort}";
 
@@ -152,7 +141,7 @@ namespace Ocelot.AcceptanceTests
                     };
 
                     var json = JsonConvert.SerializeObject(applications);
-                    context.Response.Headers.Add("Content-Type", "application/json");
+                    context.Response.Headers.Append("Content-Type", "application/json");
                     await context.Response.WriteAsync(json);
                 }
             });

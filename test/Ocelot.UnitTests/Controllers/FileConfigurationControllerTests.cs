@@ -1,25 +1,14 @@
-using System;
-
 using Microsoft.AspNetCore.Mvc;
-
-using Moq;
-
 using Ocelot.Configuration;
 using Ocelot.Configuration.File;
+using Ocelot.Configuration.Repository;
 using Ocelot.Configuration.Setter;
 using Ocelot.Errors;
 using Ocelot.Responses;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-using Ocelot.Configuration.Repository;
-
 namespace Ocelot.UnitTests.Controllers
 {
-    public class FileConfigurationControllerTests
+    public class FileConfigurationControllerTests : UnitTest
     {
         private readonly FileConfigurationController _controller;
         private readonly Mock<IFileConfigurationRepository> _repo;

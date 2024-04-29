@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-
 using Microsoft.AspNetCore.Http;
-
 using Ocelot.Configuration;
 using Ocelot.Responses;
 
@@ -17,7 +14,7 @@ namespace Ocelot.Headers
                 {
                     var replaced = values[f.Index].Replace(f.Find, f.Replace);
                     context.Request.Headers.Remove(f.Key);
-                    context.Request.Headers.Add(f.Key, replaced);
+                    context.Request.Headers.Append(f.Key, replaced);
                 }
             }
 

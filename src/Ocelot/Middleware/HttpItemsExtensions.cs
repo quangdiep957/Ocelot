@@ -1,11 +1,6 @@
-﻿using System.Collections.Generic;
-
-using Ocelot.Configuration;
-
+﻿using Ocelot.Configuration;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
-
 using Ocelot.Errors;
-
 using Ocelot.Request.Middleware;
 
 namespace Ocelot.Middleware
@@ -61,7 +56,7 @@ namespace Ocelot.Middleware
         public static List<Error> Errors(this IDictionary<object, object> input)
         {
             var errors = input.Get<List<Error>>("Errors");
-            return errors ?? new List<Error>();
+            return errors ?? new();
         }
 
         public static DownstreamRouteFinder.DownstreamRouteHolder

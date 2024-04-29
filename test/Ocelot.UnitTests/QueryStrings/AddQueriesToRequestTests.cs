@@ -1,27 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Claims;
-
-using Moq;
-
-using Ocelot.Configuration;
+﻿using Ocelot.Configuration;
 using Ocelot.Errors;
 using Ocelot.Infrastructure.Claims.Parser;
 using Ocelot.QueryStrings;
 using Ocelot.Request.Middleware;
 using Ocelot.Responses;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using System.Security.Claims;
 
 namespace Ocelot.UnitTests.QueryStrings
 {
-    public class AddQueriesToRequestTests
+    public class AddQueriesToRequestTests : UnitTest
     {
         private readonly AddQueriesToRequest _addQueriesToRequest;
         private DownstreamRequest _downstreamRequest;

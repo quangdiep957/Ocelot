@@ -1,16 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-
-using Ocelot.Configuration.File;
-
 using Microsoft.AspNetCore.Http;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.Configuration.File;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -29,7 +18,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_transform_upstream_header()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -70,7 +59,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_transform_downstream_header()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -110,7 +99,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_fix_issue_190()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -154,7 +143,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_fix_issue_205()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -198,7 +187,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_fix_issue_417()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -246,7 +235,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void request_should_reuse_cookies_with_cookie_container()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -289,7 +278,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void request_should_have_own_cookies_no_cookie_container()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -332,7 +321,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void issue_474_should_not_put_spaces_in_header()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -369,7 +358,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void issue_474_should_put_spaces_in_header()
         {
-            var port = RandomPortFinder.GetRandomPort();
+            var port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -459,7 +448,7 @@ namespace Ocelot.AcceptanceTests
             {
                 context.Response.OnStarting(() =>
                 {
-                    context.Response.Headers.Add(headerKey, headerValue);
+                    context.Response.Headers.Append(headerKey, headerValue);
                     context.Response.StatusCode = statusCode;
                     return Task.CompletedTask;
                 });

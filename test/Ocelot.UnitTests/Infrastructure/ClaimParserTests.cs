@@ -1,20 +1,11 @@
 ﻿using Ocelot.Errors;
-using System.Collections.Generic;
-using System.Security.Claims;
-
 using Ocelot.Infrastructure.Claims.Parser;
-
 using Ocelot.Responses;
-
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using System.Security.Claims;
 
 namespace Ocelot.UnitTests.Infrastructure
 {
-    public class ClaimParserTests
+    public class ClaimParserTests : UnitTest
     {
         private readonly IClaimsParser _claimsParser;
         private readonly List<Claim> _claims;

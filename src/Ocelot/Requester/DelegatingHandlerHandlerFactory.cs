@@ -1,16 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-
-using Ocelot.Configuration;
-
-using Ocelot.Logging;
-
 using Microsoft.Extensions.DependencyInjection;
-
+using Ocelot.Configuration;
+using Ocelot.Logging;
 using Ocelot.Requester.QoS;
-
 using Ocelot.Responses;
 
 namespace Ocelot.Requester
@@ -80,7 +71,7 @@ namespace Ocelot.Requester
                 }
                 else
                 {
-                    _logger.LogWarning($"Route {downstreamRoute.UpstreamPathTemplate} specifies use QoS but no QosHandler found in DI container. Will use not use a QosHandler, please check your setup!");
+                    _logger.LogWarning(() => $"Route {downstreamRoute.UpstreamPathTemplate} specifies use QoS but no QosHandler found in DI container. Will use not use a QosHandler, please check your setup!");
                     handlers.Add(() => new NoQosDelegatingHandler());
                 }
             }

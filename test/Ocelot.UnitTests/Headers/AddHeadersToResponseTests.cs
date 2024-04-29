@@ -1,9 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-
-using Moq;
-
 using Ocelot.Configuration.Creator;
 using Ocelot.Headers;
 using Ocelot.Infrastructure;
@@ -12,15 +6,9 @@ using Ocelot.Middleware;
 using Ocelot.Responses;
 using Ocelot.UnitTests.Responder;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Headers
 {
-    public class AddHeadersToResponseTests
+    public class AddHeadersToResponseTests : UnitTest
     {
         private readonly IAddHeadersToResponse _adder;
         private readonly Mock<IPlaceholders> _placeholders;
@@ -110,7 +98,7 @@ namespace Ocelot.UnitTests.Headers
 
         private void ThenTheErrorIsLogged()
         {
-            _logger.Verify(x => x.LogWarning("Unable to add header to response Trace-Id: {TraceId}"), Times.Once);
+            _logger.Verify(x => x.LogWarning(It.Is<Func<string>>(y => y.Invoke() == "Unable to add header to response Trace-Id: {TraceId}")), Times.Once);
         }
 
         private void ThenTheHeaderIsNotAdded(string key)

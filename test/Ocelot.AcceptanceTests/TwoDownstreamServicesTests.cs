@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-
-using Ocelot.Configuration.File;
-
-using Consul;
-
+﻿using Consul;
 using Microsoft.AspNetCore.Http;
-
 using Newtonsoft.Json;
-
-using TestStack.BDDfy;
-
-using Xunit;
+using Ocelot.Configuration.File;
 
 namespace Ocelot.AcceptanceTests
 {
@@ -34,9 +23,9 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_fix_issue_194()
         {
-            var consulPort = RandomPortFinder.GetRandomPort();
-            var servicePort1 = RandomPortFinder.GetRandomPort();
-            var servicePort2 = RandomPortFinder.GetRandomPort();
+            var consulPort = PortFinder.GetRandomPort();
+            var servicePort1 = PortFinder.GetRandomPort();
+            var servicePort2 = PortFinder.GetRandomPort();
             var downstreamServiceOneUrl = $"http://localhost:{servicePort1}";
             var downstreamServiceTwoUrl = $"http://localhost:{servicePort2}";
             var fakeConsulServiceDiscoveryUrl = $"http://localhost:{consulPort}";
@@ -108,7 +97,7 @@ namespace Ocelot.AcceptanceTests
                 if (context.Request.Path.Value == "/v1/health/service/product")
                 {
                     var json = JsonConvert.SerializeObject(_serviceEntries);
-                    context.Response.Headers.Add("Content-Type", "application/json");
+                    context.Response.Headers.Append("Content-Type", "application/json");
                     await context.Response.WriteAsync(json);
                 }
             });

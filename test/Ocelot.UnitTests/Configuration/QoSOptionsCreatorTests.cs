@@ -3,15 +3,9 @@ using Ocelot.Configuration.Builder;
 using Ocelot.Configuration.Creator;
 using Ocelot.Configuration.File;
 
-using Shouldly;
-
-using TestStack.BDDfy;
-
-using Xunit;
-
 namespace Ocelot.UnitTests.Configuration
 {
-    public class QoSOptionsCreatorTests
+    public class QoSOptionsCreatorTests : UnitTest
     {
         private readonly QoSOptionsCreator _creator;
         private FileRoute _fileRoute;
