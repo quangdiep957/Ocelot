@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Ocelot.Configuration;
 using Ocelot.Logging;
 using Ocelot.Middleware;
@@ -8,18 +9,18 @@ namespace Ocelot.RateLimit.Middleware
     public class ClientRateLimitMiddleware : OcelotMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly IServiceProvider _container;
         private readonly ClientRateLimitProcessor _processor;
-        private IHttpContextAccessor _httpContextAccessor;
 
         public ClientRateLimitMiddleware(RequestDelegate next,
             IOcelotLoggerFactory loggerFactory,
-            IRateLimitCounterHandler counterHandler, 
-            IHttpContextAccessor httpContextAccessor)
+            IRateLimitCounterHandler counterHandler,
+            IServiceProvider container)
                 : base(loggerFactory.CreateLogger<ClientRateLimitMiddleware>())
         {
             _next = next;
+            _container = container;
             _processor = new ClientRateLimitProcessor(counterHandler);
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -78,9 +79,13 @@ namespace Ocelot.RateLimit.Middleware
             //set X-Rate-Limit headers for the longest period
             if (!options.DisableRateLimitHeaders)
             {
-                var originalHttpContext = _httpContextAccessor.HttpContext;
-                var headers = _processor.GetRateLimitHeaders(originalHttpContext, identity, options);
-                originalHttpContext.Response.OnStarting(SetRateLimitHeaders, state: headers);
+                var httpContextAccessor = _container.GetService<IHttpContextAccessor>();
+                if (httpContextAccessor != null)
+                {
+                    var originalHttpContext = httpContextAccessor.HttpContext;
+                    var headers = _processor.GetRateLimitHeaders(originalHttpContext, identity, options);
+                    originalHttpContext.Response.OnStarting(SetRateLimitHeaders, state: headers);
+                }
             }
 
             await _next.Invoke(httpContext);
