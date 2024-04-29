@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.Logging;
@@ -15,7 +16,7 @@ namespace Ocelot.UnitTests.RateLimit
         private readonly IRateLimitCounterHandler _rateLimitCounterHandler;
         private readonly Mock<IOcelotLoggerFactory> _loggerFactory;
         private readonly Mock<IOcelotLogger> _logger;
-        private readonly Mock<IHttpContextAccessor> _httpContextAccessor;
+        private readonly Mock<IServiceProvider> _container;
         private readonly ClientRateLimitMiddleware _middleware;
         private readonly RequestDelegate _next;
         private DownstreamResponse _downstreamResponse;
@@ -30,8 +31,8 @@ namespace Ocelot.UnitTests.RateLimit
             _logger = new Mock<IOcelotLogger>();
             _loggerFactory.Setup(x => x.CreateLogger<ClientRateLimitMiddleware>()).Returns(_logger.Object);
             _next = context => Task.CompletedTask;
-            _httpContextAccessor = new Mock<IHttpContextAccessor>();
-            _middleware = new ClientRateLimitMiddleware(_next, _loggerFactory.Object, _rateLimitCounterHandler, _httpContextAccessor.Object);
+            _container = new Mock<IServiceProvider>();
+            _middleware = new ClientRateLimitMiddleware(_next, _loggerFactory.Object, _rateLimitCounterHandler, _container.Object);
         }
 
         [Fact]
@@ -102,8 +103,11 @@ namespace Ocelot.UnitTests.RateLimit
                 httpContexts.Add(httpContext);
             }
 
-            var httpContextSeq = _httpContextAccessor.SetupSequence(x => x.HttpContext);
+            var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+            var httpContextSeq = httpContextAccessorMock.SetupSequence(x => x.HttpContext);
             httpContexts.ForEach(x => httpContextSeq.Returns(x));
+            _container.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(IHttpContextAccessor))))
+                .Returns(httpContextAccessorMock.Object);
 
             foreach (var httpContext in httpContexts)
             {
