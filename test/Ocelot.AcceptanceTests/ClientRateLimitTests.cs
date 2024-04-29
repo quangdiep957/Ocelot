@@ -202,7 +202,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_set_ratelimiting_headers_on_response_when_DisableRateLimitHeaders_set_to_false()
         {
-            int port = RandomPortFinder.GetRandomPort();
+            int port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
@@ -258,7 +258,7 @@ namespace Ocelot.AcceptanceTests
         [Fact]
         public void should_not_set_ratelimiting_headers_on_response_when_DisableRateLimitHeaders_set_to_true()
         {
-            int port = RandomPortFinder.GetRandomPort();
+            int port = PortFinder.GetRandomPort();
 
             var configuration = new FileConfiguration
             {
