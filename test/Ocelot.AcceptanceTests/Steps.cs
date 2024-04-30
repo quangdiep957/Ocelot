@@ -192,7 +192,7 @@ public class Steps : IDisposable
                 Console.WriteLine(e);
             }
         }
-     }
+    }
 
     public void ThenTheResponseBodyHeaderIs(string key, string value)
     {
@@ -780,30 +780,7 @@ public class Steps : IDisposable
     }
 
     public void GivenOcelotIsRunningWithEureka()
-    {
-        _webHostBuilder = new WebHostBuilder();
-
-        _webHostBuilder
-            .ConfigureAppConfiguration((hostingContext, config) =>
-            {
-                config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath);
-                var env = hostingContext.HostingEnvironment;
-                config.AddJsonFile("appsettings.json", true, false)
-                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, false);
-                config.AddJsonFile(_ocelotConfigFileName, false, false);
-                config.AddEnvironmentVariables();
-            })
-            .ConfigureServices(s =>
-            {
-                s.AddOcelot()
-                    .AddEureka();
-            })
-            .Configure(app => { app.UseOcelot().Wait(); });
-
-        _ocelotServer = new TestServer(_webHostBuilder);
-
-        _ocelotClient = _ocelotServer.CreateClient();
-    }
+        => GivenOcelotIsRunningWithServices(s => s.AddOcelot().AddEureka());
 
     public void GivenOcelotIsRunningWithPolly() => GivenOcelotIsRunningWithServices(WithPolly);
     public static void WithPolly(IServiceCollection services) => services.AddOcelot().AddPolly();
@@ -816,6 +793,29 @@ public class Steps : IDisposable
     public void WhenIGetUrlOnTheApiGatewayAndDontWait(string url)
     {
         _ocelotClient.GetAsync(url);
+    }
+
+    public void WhenIGetUrlWithBodyOnTheApiGateway(string url, string body)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, url)
+        {
+            Content = new StringContent(body),
+        };
+        _response = _ocelotClient.SendAsync(request).Result;
+    }
+
+    public void WhenIGetUrlWithFormOnTheApiGateway(string url, string name, IEnumerable<KeyValuePair<string, string>> values)
+    {
+        var content = new MultipartFormDataContent();
+        var dataContent = new FormUrlEncodedContent(values);
+        content.Add(dataContent, name);
+        content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, url)
+        {
+            Content = content,
+        };
+        _response = _ocelotClient.SendAsync(request).Result;
     }
 
     public void WhenICancelTheRequest()
