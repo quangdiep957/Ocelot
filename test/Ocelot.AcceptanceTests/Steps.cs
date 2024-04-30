@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Ocelot.AcceptanceTests.Caching;
 using Ocelot.Cache.CacheManager;
@@ -974,11 +975,16 @@ public class Steps : IDisposable
     }
 
     public void ThenRateLimitingHeadersExistInResponse(bool headersExist)
-        {
-            _response.Headers.Contains("X-Rate-Limit-Limit").ShouldBe(headersExist);
-            _response.Headers.Contains("X-Rate-Limit-Remaining").ShouldBe(headersExist);
-            _response.Headers.Contains("X-Rate-Limit-Reset").ShouldBe(headersExist);
-        }
+    {
+        _response.Headers.Contains("X-Rate-Limit-Limit").ShouldBe(headersExist);
+        _response.Headers.Contains("X-Rate-Limit-Remaining").ShouldBe(headersExist);
+        _response.Headers.Contains("X-Rate-Limit-Reset").ShouldBe(headersExist);
+    }
+
+    public void ThenRetryAfterHeaderExistsInResponse(bool headersExist)
+    {
+        _response.Headers.Contains(HeaderNames.RetryAfter).ShouldBe(headersExist);
+    }
 
     public void WhenIMakeLotsOfDifferentRequestsToTheApiGateway()
     {

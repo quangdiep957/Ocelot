@@ -204,44 +204,7 @@ namespace Ocelot.AcceptanceTests
         {
             int port = PortFinder.GetRandomPort();
 
-            var configuration = new FileConfiguration
-            {
-                Routes = new List<FileRoute>
-                {
-                    new()
-                    {
-                        DownstreamPathTemplate = "/api/ClientRateLimit",
-                        DownstreamHostAndPorts = new List<FileHostAndPort>
-                        {
-                            new()
-                            {
-                                Host = "localhost",
-                                Port = port,
-                            },
-                        },
-                        DownstreamScheme = "http",
-                        UpstreamPathTemplate = "/api/ClientRateLimit",
-                        UpstreamHttpMethod = new List<string> { "Get" },                            
-                        RateLimitOptions = new FileRateLimitRule()
-                        {
-                            EnableRateLimiting = true,
-                            ClientWhitelist = new List<string>(),
-                            Limit = 3,
-                            Period = "1s",
-                            PeriodTimespan = 1000,
-                        },
-                    },
-                },
-                GlobalConfiguration = new FileGlobalConfiguration()
-                {
-                    RateLimitOptions = new FileRateLimitOptions()
-                    {
-                        DisableRateLimitHeaders = false,
-                        QuotaExceededMessage = "",
-                        HttpStatusCode = 428,
-                    },
-                },
-            };
+            var configuration = CreateConfigurationForCheckingHeaders(port, false);
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/api/ClientRateLimit"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
@@ -252,6 +215,7 @@ namespace Ocelot.AcceptanceTests
                 .Then(x => _steps.ThenRateLimitingHeadersExistInResponse(true))
                 .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
                 .Then(x => _steps.ThenRateLimitingHeadersExistInResponse(false))
+                .And(x => _steps.ThenRetryAfterHeaderExistsInResponse(true))
                 .BDDfy();
         }
 
@@ -260,44 +224,7 @@ namespace Ocelot.AcceptanceTests
         {
             int port = PortFinder.GetRandomPort();
 
-            var configuration = new FileConfiguration
-            {
-                Routes = new List<FileRoute>
-                {
-                    new()
-                    {
-                        DownstreamPathTemplate = "/api/ClientRateLimit",
-                        DownstreamHostAndPorts = new List<FileHostAndPort>
-                        {
-                            new()
-                            {
-                                Host = "localhost",
-                                Port = port,
-                            },
-                        },
-                        DownstreamScheme = "http",
-                        UpstreamPathTemplate = "/api/ClientRateLimit",
-                        UpstreamHttpMethod = new List<string> { "Get" },
-                        RateLimitOptions = new FileRateLimitRule()
-                        {
-                            EnableRateLimiting = true,
-                            ClientWhitelist = new List<string>(),
-                            Limit = 3,
-                            Period = "1s",
-                            PeriodTimespan = 1000,
-                        },
-                    },
-                },
-                GlobalConfiguration = new FileGlobalConfiguration()
-                {
-                    RateLimitOptions = new FileRateLimitOptions()
-                    {
-                        DisableRateLimitHeaders = true,
-                        QuotaExceededMessage = "",
-                        HttpStatusCode = 428,
-                    },
-                },
-            };
+            var configuration = CreateConfigurationForCheckingHeaders(port, true);
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/api/ClientRateLimit"))
                 .And(x => _steps.GivenThereIsAConfiguration(configuration))
@@ -320,6 +247,48 @@ namespace Ocelot.AcceptanceTests
                 context.Response.WriteAsync(_counterOne.ToString());
                 return Task.CompletedTask;
             });
+        }
+
+        private FileConfiguration CreateConfigurationForCheckingHeaders(int port, bool disableRateLimitHeaders)
+        {
+            return new FileConfiguration
+            {
+                Routes = new List<FileRoute>
+                {
+                    new()
+                    {
+                        DownstreamPathTemplate = "/api/ClientRateLimit",
+                        DownstreamHostAndPorts = new List<FileHostAndPort>
+                        {
+                            new()
+                            {
+                                Host = "localhost",
+                                Port = port,
+                            },
+                        },
+                        DownstreamScheme = "http",
+                        UpstreamPathTemplate = "/api/ClientRateLimit",
+                        UpstreamHttpMethod = new List<string> { "Get" },
+                        RateLimitOptions = new FileRateLimitRule()
+                        {
+                            EnableRateLimiting = true,
+                            ClientWhitelist = new List<string>(),
+                            Limit = 3,
+                            Period = "100s",
+                            PeriodTimespan = 1000,
+                        },
+                    },
+                },
+                GlobalConfiguration = new FileGlobalConfiguration()
+                {
+                    RateLimitOptions = new FileRateLimitOptions()
+                    {
+                        DisableRateLimitHeaders = disableRateLimitHeaders,
+                        QuotaExceededMessage = "",
+                        HttpStatusCode = 428,
+                    },
+                },
+            };
         }
 
         public void Dispose()

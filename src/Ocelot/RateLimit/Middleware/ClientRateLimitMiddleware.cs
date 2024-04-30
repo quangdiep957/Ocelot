@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 using Ocelot.Configuration;
 using Ocelot.Logging;
 using Ocelot.Middleware;
@@ -132,7 +133,8 @@ namespace Ocelot.RateLimit.Middleware
 
             if (!option.DisableRateLimitHeaders)
             {
-                http.Headers.TryAddWithoutValidation("Retry-After", retryAfter);
+                http.Headers.TryAddWithoutValidation(HeaderNames.RetryAfter, retryAfter);
+                httpContext.Response.Headers[HeaderNames.RetryAfter] = retryAfter;
             }
 
             return new DownstreamResponse(http);
