@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Ocelot.AcceptanceTests.Caching;
 using Ocelot.Cache.CacheManager;
@@ -42,7 +41,7 @@ public class Steps : IDisposable
 {
     protected TestServer _ocelotServer;
     protected HttpClient _ocelotClient;
-    private HttpResponseMessage _response;
+    protected HttpResponseMessage _response;
     private HttpContent _postContent;
     private BearerToken _token;
     public string RequestIdKey = "OcRequestId";
@@ -972,18 +971,6 @@ public class Steps : IDisposable
     public void ThenTheRequestIdIsReturned(string expected)
     {
         _response.Headers.GetValues(RequestIdKey).First().ShouldBe(expected);
-    }
-
-    public void ThenRateLimitingHeadersExistInResponse(bool headersExist)
-    {
-        _response.Headers.Contains("X-Rate-Limit-Limit").ShouldBe(headersExist);
-        _response.Headers.Contains("X-Rate-Limit-Remaining").ShouldBe(headersExist);
-        _response.Headers.Contains("X-Rate-Limit-Reset").ShouldBe(headersExist);
-    }
-
-    public void ThenRetryAfterHeaderExistsInResponse(bool headersExist)
-    {
-        _response.Headers.Contains(HeaderNames.RetryAfter).ShouldBe(headersExist);
     }
 
     public void WhenIMakeLotsOfDifferentRequestsToTheApiGateway()

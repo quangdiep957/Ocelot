@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 using Ocelot.Configuration.File;
 using Ocelot.Values;
 
 namespace Ocelot.AcceptanceTests
 {
-    public class ClientRateLimitTests : IDisposable
+    public class ClientRateLimitTests : Steps, IDisposable
     {
-        private readonly Steps _steps;
         private int _counterOne;
         private readonly ServiceHandler _serviceHandler;
 
         public ClientRateLimitTests()
         {
             _serviceHandler = new ServiceHandler();
-            _steps = new Steps();
         }
 
         [Fact]
@@ -39,7 +38,7 @@ namespace Ocelot.AcceptanceTests
                         DownstreamScheme = "http",
                         UpstreamPathTemplate = "/api/ClientRateLimit",
                         UpstreamHttpMethod = new List<string> { "Get" },
-                        RequestIdKey = _steps.RequestIdKey,
+                        RequestIdKey = this.RequestIdKey,
                         RateLimitOptions = new FileRateLimitRule
                         {
                             EnableRateLimiting = true,
@@ -65,14 +64,14 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/api/ClientRateLimit"))
-                .And(x => _steps.GivenThereIsAConfiguration(configuration))
-                .And(x => _steps.GivenOcelotIsRunning())
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenTheStatusCodeShouldBe(200))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 2))
-                .Then(x => _steps.ThenTheStatusCodeShouldBe(200))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenTheStatusCodeShouldBe(428))
+                .And(x => GivenThereIsAConfiguration(configuration))
+                .And(x => GivenOcelotIsRunning())
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenTheStatusCodeShouldBe(200))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 2))
+                .Then(x => ThenTheStatusCodeShouldBe(200))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenTheStatusCodeShouldBe(428))
                 .BDDfy();
         }
 
@@ -99,7 +98,7 @@ namespace Ocelot.AcceptanceTests
                         DownstreamScheme = "http",
                         UpstreamPathTemplate = "/api/ClientRateLimit",
                         UpstreamHttpMethod = new List<string> { "Get" },
-                        RequestIdKey = _steps.RequestIdKey,
+                        RequestIdKey = this.RequestIdKey,
 
                         RateLimitOptions = new FileRateLimitRule
                         {
@@ -126,20 +125,20 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/api/ClientRateLimit"))
-                .And(x => _steps.GivenThereIsAConfiguration(configuration))
-                .And(x => _steps.GivenOcelotIsRunning())
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenTheStatusCodeShouldBe(200))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 2))
-                .Then(x => _steps.ThenTheStatusCodeShouldBe(200))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenTheStatusCodeShouldBe(428))
-                .And(x => _steps.GivenIWait(1000))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenTheStatusCodeShouldBe(428))
-                .And(x => _steps.GivenIWait(1000))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenTheStatusCodeShouldBe(200))
+                .And(x => GivenThereIsAConfiguration(configuration))
+                .And(x => GivenOcelotIsRunning())
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenTheStatusCodeShouldBe(200))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 2))
+                .Then(x => ThenTheStatusCodeShouldBe(200))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenTheStatusCodeShouldBe(428))
+                .And(x => GivenIWait(1000))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenTheStatusCodeShouldBe(428))
+                .And(x => GivenIWait(1000))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenTheStatusCodeShouldBe(200))
                 .BDDfy();
         }
 
@@ -166,7 +165,7 @@ namespace Ocelot.AcceptanceTests
                         DownstreamScheme = "http",
                         UpstreamPathTemplate = "/api/ClientRateLimit",
                         UpstreamHttpMethod = new List<string> { "Get" },
-                        RequestIdKey = _steps.RequestIdKey,
+                        RequestIdKey = this.RequestIdKey,
 
                         RateLimitOptions = new FileRateLimitRule
                         {
@@ -192,10 +191,10 @@ namespace Ocelot.AcceptanceTests
             };
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/api/ClientRateLimit"))
-                .And(x => _steps.GivenThereIsAConfiguration(configuration))
-                .And(x => _steps.GivenOcelotIsRunning())
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 4))
-                .Then(x => _steps.ThenTheStatusCodeShouldBe(200))
+                .And(x => GivenThereIsAConfiguration(configuration))
+                .And(x => GivenOcelotIsRunning())
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 4))
+                .Then(x => ThenTheStatusCodeShouldBe(200))
                 .BDDfy();
         }
 
@@ -207,17 +206,17 @@ namespace Ocelot.AcceptanceTests
             var configuration = CreateConfigurationForCheckingHeaders(port, false);
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/api/ClientRateLimit"))
-                .And(x => _steps.GivenThereIsAConfiguration(configuration))
-                .And(x => _steps.GivenOcelotIsRunning())
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenRateLimitingHeadersExistInResponse(true))
-                .And(x => _steps.ThenRetryAfterHeaderExistsInResponse(false))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 2))
-                .Then(x => _steps.ThenRateLimitingHeadersExistInResponse(true))
-                .And(x => _steps.ThenRetryAfterHeaderExistsInResponse(false))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenRateLimitingHeadersExistInResponse(false))
-                .And(x => _steps.ThenRetryAfterHeaderExistsInResponse(true))
+                .And(x => GivenThereIsAConfiguration(configuration))
+                .And(x => GivenOcelotIsRunning())
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenRateLimitingHeadersExistInResponse(true))
+                .And(x => ThenRetryAfterHeaderExistsInResponse(false))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 2))
+                .Then(x => ThenRateLimitingHeadersExistInResponse(true))
+                .And(x => ThenRetryAfterHeaderExistsInResponse(false))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenRateLimitingHeadersExistInResponse(false))
+                .And(x => ThenRetryAfterHeaderExistsInResponse(true))
                 .BDDfy();
         }
 
@@ -229,17 +228,17 @@ namespace Ocelot.AcceptanceTests
             var configuration = CreateConfigurationForCheckingHeaders(port, true);
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", "/api/ClientRateLimit"))
-                .And(x => _steps.GivenThereIsAConfiguration(configuration))
-                .And(x => _steps.GivenOcelotIsRunning())
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenRateLimitingHeadersExistInResponse(false))
-                .And(x => _steps.ThenRetryAfterHeaderExistsInResponse(false))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 2))
-                .Then(x => _steps.ThenRateLimitingHeadersExistInResponse(false))
-                .And(x => _steps.ThenRetryAfterHeaderExistsInResponse(false))
-                .When(x => _steps.WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
-                .Then(x => _steps.ThenRateLimitingHeadersExistInResponse(false))
-                .And(x => _steps.ThenRetryAfterHeaderExistsInResponse(false))
+                .And(x => GivenThereIsAConfiguration(configuration))
+                .And(x => GivenOcelotIsRunning())
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenRateLimitingHeadersExistInResponse(false))
+                .And(x => ThenRetryAfterHeaderExistsInResponse(false))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 2))
+                .Then(x => ThenRateLimitingHeadersExistInResponse(false))
+                .And(x => ThenRetryAfterHeaderExistsInResponse(false))
+                .When(x => WhenIGetUrlOnTheApiGatewayMultipleTimesForRateLimit("/api/ClientRateLimit", 1))
+                .Then(x => ThenRateLimitingHeadersExistInResponse(false))
+                .And(x => ThenRetryAfterHeaderExistsInResponse(false))
                 .BDDfy();
         }
 
@@ -296,9 +295,22 @@ namespace Ocelot.AcceptanceTests
             };
         }
 
-        public void Dispose()
+        private void ThenRateLimitingHeadersExistInResponse(bool headersExist)
         {
-            _steps.Dispose();
+            _response.Headers.Contains("X-Rate-Limit-Limit").ShouldBe(headersExist);
+            _response.Headers.Contains("X-Rate-Limit-Remaining").ShouldBe(headersExist);
+            _response.Headers.Contains("X-Rate-Limit-Reset").ShouldBe(headersExist);
+        }
+
+        private void ThenRetryAfterHeaderExistsInResponse(bool headersExist)
+        {
+            _response.Headers.Contains(HeaderNames.RetryAfter).ShouldBe(headersExist);
+        }
+
+        public override void Dispose()
+        {
+            _serviceHandler.Dispose();
+            base.Dispose();
         }
     }
 }
