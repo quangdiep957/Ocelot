@@ -278,7 +278,7 @@ namespace Ocelot.IntegrationTests
                         DownstreamScheme = "https",
                         DownstreamPathTemplate = "/blooper/{productId}",
                         UpstreamHttpMethod = new List<string> { "post" },
-                        UpstreamPathTemplate = "/test",
+                        UpstreamPathTemplate = "/test/{productId}",
                     },
                 },
             };
@@ -882,7 +882,7 @@ namespace Ocelot.IntegrationTests
         private void ThenTheResultHaveMultiLineIndentedJson()
         {
             const string indent = "  ";
-            const int total = 46, skip = 1;
+            const int total = 52, skip = 1;
             var lines = _response.Content.ReadAsStringAsync().Result.Split(Environment.NewLine);
             lines.Length.ShouldBe(total);
             lines.First().ShouldNotStartWith(indent);

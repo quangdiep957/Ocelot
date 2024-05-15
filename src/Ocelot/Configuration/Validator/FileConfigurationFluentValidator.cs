@@ -7,7 +7,10 @@ using Ocelot.ServiceDiscovery;
 
 namespace Ocelot.Configuration.Validator
 {
-    public class FileConfigurationFluentValidator : AbstractValidator<FileConfiguration>, IConfigurationValidator
+    /// <summary>
+    /// Validation of a <see cref="FileConfiguration"/> objects.
+    /// </summary>
+    public partial class FileConfigurationFluentValidator : AbstractValidator<FileConfiguration>, IConfigurationValidator
     {
         private const string Servicefabric = "servicefabric";
         private readonly List<ServiceDiscoveryFinderDelegate> _serviceDiscoveryFinderDelegates;
@@ -34,7 +37,10 @@ namespace Ocelot.Configuration.Validator
 
             RuleForEach(configuration => configuration.Routes)
                 .Must((_, route) => IsPlaceholderNotDuplicatedIn(route.UpstreamPathTemplate))
-                .WithMessage((_, route) => $"{nameof(route)} {route.UpstreamPathTemplate} has duplicated placeholder");
+                .WithMessage((_, route) => $"{nameof(route.UpstreamPathTemplate)} '{route.UpstreamPathTemplate}' has duplicated placeholder");
+            RuleForEach(configuration => configuration.Routes)
+                .Must((_, route) => IsPlaceholderNotDuplicatedIn(route.DownstreamPathTemplate))
+                .WithMessage((_, route) => $"{nameof(route.DownstreamPathTemplate)} '{route.DownstreamPathTemplate}' has duplicated placeholder");
 
             RuleFor(configuration => configuration.GlobalConfiguration.ServiceDiscoveryProvider)
                 .Must(HaveServiceDiscoveryProviderRegistered)
@@ -94,12 +100,19 @@ namespace Ocelot.Configuration.Validator
             return routesForAggregate.Count() == fileAggregateRoute.RouteKeys.Count;
         }
 
-        private static bool IsPlaceholderNotDuplicatedIn(string upstreamPathTemplate)
+#if NET7_0_OR_GREATER
+        [GeneratedRegex(@"\{\w+\}", RegexOptions.IgnoreCase | RegexOptions.Singleline, "en-US")]
+        private static partial Regex PlaceholderRegex();
+#else
+        private static readonly Regex PlaceholderRegexVar = new(@"\{\w+\}", RegexOptions.IgnoreCase | RegexOptions.Singleline, TimeSpan.FromMilliseconds(1000));
+        private static Regex PlaceholderRegex() => PlaceholderRegexVar;
+#endif
+
+        private static bool IsPlaceholderNotDuplicatedIn(string pathTemplate)
         {
-            var regExPlaceholder = new Regex("{[^}]+}");
-            var matches = regExPlaceholder.Matches(upstreamPathTemplate);
-            var upstreamPathPlaceholders = matches.Select(m => m.Value);
-            return upstreamPathPlaceholders.Count() == upstreamPathPlaceholders.Distinct().Count();
+            var placeholders = PlaceholderRegex().Matches(pathTemplate)
+                .Select(m => m.Value).ToList();
+            return placeholders.Count == placeholders.Distinct().Count();
         }
 
         private static bool DoesNotContainRoutesWithSpecificRequestIdKeys(FileAggregateRoute fileAggregateRoute,
@@ -131,7 +144,7 @@ namespace Ocelot.Configuration.Validator
 
             var duplicateSpecificVerbs = matchingRoutes.SelectMany(x => x.UpstreamHttpMethod).GroupBy(x => x.ToLower()).SelectMany(x => x.Skip(1)).Any();
 
-            if (duplicateAllowAllVerbs || duplicateSpecificVerbs || (allowAllVerbs && specificVerbs))
+            if (duplicateAllowAllVerbs || duplicateSpecificVerbs || allowAllVerbs && specificVerbs)
             {
                 return false;
             }
