@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Ocelot.Configuration.File;
 
 namespace Ocelot.DependencyInjection
@@ -116,7 +117,11 @@ namespace Ocelot.DependencyInjection
                     !fi.FullName.Equals(environmentFileInfo.FullName, StringComparison.OrdinalIgnoreCase))
                 .ToArray();
 
-            fileConfiguration ??= new FileConfiguration();
+            dynamic fileConfigurationMerged = fileConfiguration != null ? JObject.FromObject(fileConfiguration) : new JObject();
+            fileConfigurationMerged.GlobalConfiguration ??= new JObject();
+            fileConfigurationMerged.Aggregates ??= new JArray();
+            fileConfigurationMerged.Routes ??= new JArray();
+
             primaryFile ??= PrimaryConfigFile;
             globalFile ??= GlobalConfigFile;
             var primaryFileInfo = new FileInfo(primaryFile);
@@ -131,19 +136,18 @@ namespace Ocelot.DependencyInjection
                 }
 
                 var lines = File.ReadAllText(file.FullName);
-                var config = JsonConvert.DeserializeObject<FileConfiguration>(lines);
-                if (file.Name.Equals(globalFileInfo.Name, StringComparison.OrdinalIgnoreCase) &&
-                    file.FullName.Equals(globalFileInfo.FullName, StringComparison.OrdinalIgnoreCase))
-                {
-                    fileConfiguration.GlobalConfiguration = config.GlobalConfiguration;
-                }
+                dynamic config = JToken.Parse(lines);
+                var isGlobal = file.Name.Equals(globalFileInfo.Name, StringComparison.OrdinalIgnoreCase) &&
+                    file.FullName.Equals(globalFileInfo.FullName, StringComparison.OrdinalIgnoreCase);
 
-                fileConfiguration.Aggregates.AddRange(config.Aggregates);
-                fileConfiguration.Routes.AddRange(config.Routes);
+                MergeConfig(fileConfigurationMerged, config, isGlobal);                
             }
 
-            return JsonConvert.SerializeObject(fileConfiguration, Formatting.Indented);
+            return ((JObject)fileConfigurationMerged).ToString();
         }
+
+        public static IConfigurationBuilder AddOcelot(this IConfigurationBuilder builder, JObject fileConfiguration)
+            => SerializeToFile(builder, fileConfiguration);
 
         /// <summary>
         /// Adds Ocelot configuration by ready configuration object and writes JSON to the primary configuration file.<br/>
@@ -158,11 +162,13 @@ namespace Ocelot.DependencyInjection
         /// <returns>An <see cref="IConfigurationBuilder"/> object.</returns>
         public static IConfigurationBuilder AddOcelot(this IConfigurationBuilder builder, FileConfiguration fileConfiguration,
             string primaryConfigFile = null, bool? optional = null, bool? reloadOnChange = null) // optional injections
+            => SerializeToFile(builder, fileConfiguration);
+
+        private static IConfigurationBuilder SerializeToFile(IConfigurationBuilder builder, object fileConfiguration, bool? optional = null, bool? reloadOnChange = null)
         {
             var json = JsonConvert.SerializeObject(fileConfiguration, Formatting.Indented);
-            return AddOcelotJsonFile(builder, json, primaryConfigFile, optional, reloadOnChange);
+            return AddOcelotJsonFile(builder, json, PrimaryConfigFile, optional, reloadOnChange);
         }
-
         /// <summary>
         /// Adds Ocelot configuration by ready configuration object, environment and merge option, reading the required files from the current default folder.
         /// </summary>
@@ -182,7 +188,6 @@ namespace Ocelot.DependencyInjection
             var json = GetMergedOcelotJson(".", env, fileConfiguration, primaryConfigFile, globalConfigFile, environmentConfigFile);
             return ApplyMergeOcelotJsonOption(builder, mergeTo, json, primaryConfigFile, optional, reloadOnChange);
         }
-
         /// <summary>
         /// Adds Ocelot primary configuration file (aka ocelot.json).<br/>
         /// Writes JSON to the file.<br/>
@@ -202,5 +207,34 @@ namespace Ocelot.DependencyInjection
             File.WriteAllText(primary, json);
             return builder?.AddJsonFile(primary, optional ?? false, reloadOnChange ?? false);
         }
+
+        private static void MergeConfig(JToken destConfig, JToken srcConfig, bool isGlobal)
+        {
+            if (isGlobal)
+            {
+                MergeConfigSection(destConfig, srcConfig, nameof(FileConfiguration.GlobalConfiguration));
+            }
+
+            MergeConfigSection(destConfig, srcConfig, nameof(FileConfiguration.Aggregates));
+            MergeConfigSection(destConfig, srcConfig, nameof(FileConfiguration.Routes));
+        }
+
+        private static void MergeConfigSection(JToken destConfig, JToken srcConfig, string sectionName)
+        {
+            var destConfigSection = destConfig[sectionName];
+            var srcConfigSection = srcConfig[sectionName];
+
+            if (srcConfigSection != null)
+            {
+                if (srcConfigSection is JObject)
+                {
+                    destConfig[sectionName] = srcConfigSection;
+                }
+                else if (srcConfigSection is JArray)
+                {
+                    (destConfigSection as JArray).Merge(srcConfigSection);
+                }
+            }            
+        }        
     }
 }
