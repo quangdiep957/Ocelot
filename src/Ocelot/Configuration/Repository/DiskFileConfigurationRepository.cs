@@ -16,11 +16,10 @@ namespace Ocelot.Configuration.Repository
         private FileInfo _environmentFile;
         private readonly object _lock = new();
 
-        public DiskFileConfigurationRepository(IWebHostEnvironment hosting, IOcelotConfigurationChangeTokenSource changeTokenSource)
+        public DiskFileConfigurationRepository(IWebHostEnvironment hostingEnvironment, IOcelotConfigurationChangeTokenSource changeTokenSource)
         {
             _hostingEnvironment = hostingEnvironment;
             _changeTokenSource = changeTokenSource;
-            _environmentFilePath = $"{AppContext.BaseDirectory}{ConfigurationFileName}{(string.IsNullOrEmpty(hosting.EnvironmentName) ? string.Empty : ".")}{hosting.EnvironmentName}.json";
             Initialize(AppContext.BaseDirectory);
         }
 
@@ -41,7 +40,6 @@ namespace Ocelot.Configuration.Repository
             _environmentFile = new FileInfo(Path.Combine(folder, envFile));
         }
 
-        public Task<Response<FileConfiguration>> Get()
         public Task<FileConfiguration> GetAsync()
         {
             string jsonConfiguration;

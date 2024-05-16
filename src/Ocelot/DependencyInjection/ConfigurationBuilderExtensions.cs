@@ -117,10 +117,11 @@ namespace Ocelot.DependencyInjection
                     !fi.FullName.Equals(environmentFileInfo.FullName, StringComparison.OrdinalIgnoreCase))
                 .ToArray();
 
-            dynamic fileConfiguration = new JObject();
-            fileConfiguration.GlobalConfiguration = new JObject();
-            fileConfiguration.Aggregates = new JArray();
-            fileConfiguration.Routes = new JArray();
+            dynamic fileConfigurationMerged = fileConfiguration != null ? JObject.FromObject(fileConfiguration) : new JObject();
+            fileConfigurationMerged.GlobalConfiguration ??= new JObject();
+            fileConfigurationMerged.Aggregates ??= new JArray();
+            fileConfigurationMerged.Routes ??= new JArray();
+
             primaryFile ??= PrimaryConfigFile;
             globalFile ??= GlobalConfigFile;
             var primaryFileInfo = new FileInfo(primaryFile);
@@ -136,13 +137,13 @@ namespace Ocelot.DependencyInjection
 
                 var lines = File.ReadAllText(file.FullName);
                 dynamic config = JToken.Parse(lines);
-                var isGlobal = file.Name.Equals(globalFileInfo.Name, StringComparison.OrdinalIgnoreCase)  &&
+                var isGlobal = file.Name.Equals(globalFileInfo.Name, StringComparison.OrdinalIgnoreCase) &&
                     file.FullName.Equals(globalFileInfo.FullName, StringComparison.OrdinalIgnoreCase);
 
-                MergeConfig(fileConfiguration, config, isGlobal);                
+                MergeConfig(fileConfigurationMerged, config, isGlobal);                
             }
 
-            return (JObject)fileConfiguration.ToString();
+            return ((JObject)fileConfigurationMerged).ToString();
         }
 
         public static IConfigurationBuilder AddOcelot(this IConfigurationBuilder builder, JObject fileConfiguration)
@@ -163,10 +164,10 @@ namespace Ocelot.DependencyInjection
             string primaryConfigFile = null, bool? optional = null, bool? reloadOnChange = null) // optional injections
             => SerializeToFile(builder, fileConfiguration);
 
-        private static IConfigurationBuilder SerializeToFile(IConfigurationBuilder builder, object fileConfiguration)
+        private static IConfigurationBuilder SerializeToFile(IConfigurationBuilder builder, object fileConfiguration, bool? optional = null, bool? reloadOnChange = null)
         {
             var json = JsonConvert.SerializeObject(fileConfiguration, Formatting.Indented);
-            return AddOcelotJsonFile(builder, json, primaryConfigFile, optional, reloadOnChange);
+            return AddOcelotJsonFile(builder, json, PrimaryConfigFile, optional, reloadOnChange);
         }
         /// <summary>
         /// Adds Ocelot configuration by ready configuration object, environment and merge option, reading the required files from the current default folder.
