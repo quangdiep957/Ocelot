@@ -44,7 +44,7 @@ namespace Ocelot.AcceptanceTests
         public void Should_not_timeout()
         {
             var port = PortFinder.GetRandomPort();
-            var configuration = FileConfigurationFactory(port, new QoSOptions(10, 500, 1000, null), HttpMethods.Post);
+            var configuration = FileConfigurationFactory(port, new QoSOptions(10, 500,.5,5, 1000, null), HttpMethods.Post);
 
             this.Given(x => x.GivenThereIsAServiceRunningOn($"http://localhost:{port}", 200, string.Empty, 10))
                 .And(x => GivenThereIsAConfiguration(configuration))

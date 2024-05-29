@@ -32,7 +32,7 @@ public class PollyQoSResiliencePipelineProvider : PollyQoSProviderBase, IPollyQo
         var options = route.QosOptions;
 
         // Check if we need pipeline at all before calling GetOrAddPipeline
-        if (options is null ||
+        if (options is null || options.UseQos == false ||
             (options.ExceptionsAllowedBeforeBreaking == 0 && options.TimeoutValue is int.MaxValue))
         {
             return null; // shortcut > no qos
@@ -47,6 +47,8 @@ public class PollyQoSResiliencePipelineProvider : PollyQoSProviderBase, IPollyQo
     private void PollyResiliencePipelineWrapperFactory(ResiliencePipelineBuilder<HttpResponseMessage> builder, DownstreamRoute route)
     {
         var options = route.QosOptions;
+
+        if(!options.UseQos) return; // shortcut > no qos
 
         // Add TimeoutStrategy if TimeoutValue is not int.MaxValue and greater than 0
         if (options.TimeoutValue != int.MaxValue && options.TimeoutValue > 0)
@@ -64,8 +66,8 @@ public class PollyQoSResiliencePipelineProvider : PollyQoSProviderBase, IPollyQo
 
         var circuitBreakerStrategyOptions = new CircuitBreakerStrategyOptions<HttpResponseMessage>
         {
-            FailureRatio = 0.8,
-            SamplingDuration = TimeSpan.FromSeconds(10),
+            FailureRatio = options.FailureRatio,
+            SamplingDuration = TimeSpan.FromSeconds(options.SamplingDuration),
             MinimumThroughput = options.ExceptionsAllowedBeforeBreaking, 
             BreakDuration = TimeSpan.FromMilliseconds(options.DurationOfBreak),
             ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
