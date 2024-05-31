@@ -90,7 +90,6 @@ namespace Ocelot.Configuration
         /// </value>
         public double FailureRatio { get; } = .8;
 
-
         /// <summary>
         /// The time period over which the failure-success ratio is calculated (in milliseconds).
         /// </summary>
@@ -109,7 +108,7 @@ namespace Ocelot.Configuration
         /// </value>
         public int TimeoutValue { get; }
 
-        public bool UseQos => ExceptionsAllowedBeforeBreaking > 0 || TimeoutValue > 0;
+        public bool UseQos => ExceptionsAllowedBeforeBreaking >= 2 || TimeoutValue > 0;
 
         public bool IsValid() =>
             ExceptionsAllowedBeforeBreaking <= 0 || 
