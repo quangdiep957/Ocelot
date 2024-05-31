@@ -15,7 +15,7 @@ public class PollyQoSResiliencePipelineProvider : PollyQoSProviderBase, IPollyQo
     private readonly ResiliencePipelineRegistry<OcelotResiliencePipelineKey> _resiliencePipelineRegistry;
     private readonly IOcelotLogger _logger;
 
-    public PollyQoSResiliencePipelineProvider(IOcelotLoggerFactory loggerFactory, 
+    public PollyQoSResiliencePipelineProvider(IOcelotLoggerFactory loggerFactory,
         ResiliencePipelineRegistry<OcelotResiliencePipelineKey> resiliencePipelineRegistry)
     {
         _resiliencePipelineRegistry = resiliencePipelineRegistry;
@@ -38,9 +38,11 @@ public class PollyQoSResiliencePipelineProvider : PollyQoSProviderBase, IPollyQo
             return null; // shortcut > no qos
         }
 
+        if (!options.IsValid()) throw new ArgumentException("QoS options are invalid.");
+
         var currentRouteName = GetRouteName(route);
         return _resiliencePipelineRegistry.GetOrAddPipeline<HttpResponseMessage>(
-            key: new OcelotResiliencePipelineKey(currentRouteName), 
+            key: new OcelotResiliencePipelineKey(currentRouteName),
             configure: (builder) => PollyResiliencePipelineWrapperFactory(builder, route));
     }
 
@@ -48,7 +50,7 @@ public class PollyQoSResiliencePipelineProvider : PollyQoSProviderBase, IPollyQo
     {
         var options = route.QosOptions;
 
-        if(!options.UseQos) return; // shortcut > no qos
+        if (!options.UseQos) return; // shortcut > no qos
 
         // Add TimeoutStrategy if TimeoutValue is not int.MaxValue and greater than 0
         if (options.TimeoutValue != int.MaxValue && options.TimeoutValue > 0)
@@ -67,8 +69,8 @@ public class PollyQoSResiliencePipelineProvider : PollyQoSProviderBase, IPollyQo
         var circuitBreakerStrategyOptions = new CircuitBreakerStrategyOptions<HttpResponseMessage>
         {
             FailureRatio = options.FailureRatio,
-            SamplingDuration = TimeSpan.FromSeconds(options.SamplingDuration),
-            MinimumThroughput = options.ExceptionsAllowedBeforeBreaking, 
+            SamplingDuration = TimeSpan.FromMilliseconds(options.SamplingDuration),
+            MinimumThroughput = options.ExceptionsAllowedBeforeBreaking,
             BreakDuration = TimeSpan.FromMilliseconds(options.DurationOfBreak),
             ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
                 .HandleResult(message => ServerErrorCodes.Contains(message.StatusCode))
