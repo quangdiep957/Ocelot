@@ -57,6 +57,8 @@ public class PollyQoSResiliencePipelineProvider : IPollyQoSResiliencePipelinePro
             return ResiliencePipeline<HttpResponseMessage>.Empty; // shortcut -> No QoS
         }
 
+        if (!options.IsValid()) throw new ArgumentException("QoS options are invalid.");
+
         var currentRouteName = GetRouteName(route);
         return _registry.GetOrAddPipeline<HttpResponseMessage>(
             key: new OcelotResiliencePipelineKey(currentRouteName),
@@ -82,7 +84,7 @@ public class PollyQoSResiliencePipelineProvider : IPollyQoSResiliencePipelinePro
         var strategyOptions = new CircuitBreakerStrategyOptions<HttpResponseMessage>
         {
             FailureRatio = options.FailureRatio,
-            SamplingDuration = TimeSpan.FromSeconds(options.SamplingDuration),
+            SamplingDuration = TimeSpan.FromMilliseconds(options.SamplingDuration),
             MinimumThroughput = options.ExceptionsAllowedBeforeBreaking,
             BreakDuration = options.DurationOfBreak > QoSOptions.LowBreakDuration
                 ? TimeSpan.FromMilliseconds(options.DurationOfBreak)
