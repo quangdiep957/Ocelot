@@ -133,7 +133,13 @@ namespace Ocelot.Configuration
         public HttpVersionPolicy DownstreamHttpVersionPolicy { get; }
         public Dictionary<string, UpstreamHeaderTemplate> UpstreamHeaders { get; }
         public MetadataOptions MetadataOptions { get; }
-        
+
+        /// <summary>
+        /// The timeout duration for the downstream request in seconds.
+        /// </summary>
+        /// <value>
+        /// The timeout value in seconds.
+        /// </value>
         public int Timeout { get; }
     }
 }
