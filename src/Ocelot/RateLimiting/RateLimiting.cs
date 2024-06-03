@@ -65,8 +65,9 @@ public class RateLimiting : IRateLimiting
     public virtual RateLimitCounter Count(RateLimitCounter? entry, RateLimitRule rule)
     {
         var now = DateTime.UtcNow;
-        if (!entry.HasValue) // no entry, start counting
+        if (!entry.HasValue)
         {
+            // no entry, start counting
             return new RateLimitCounter(now, null, 1); // current request is the 1st one
         }
 
