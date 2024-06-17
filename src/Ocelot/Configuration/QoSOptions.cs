@@ -65,7 +65,8 @@ namespace Ocelot.Configuration
         /// <summary>How long the circuit should stay open before resetting in milliseconds.</summary>
         /// <remarks>If using Polly version 8 or above, this value must be 500 (0.5 sec) or greater.</remarks>
         /// <value>An <see cref="int"/> value (milliseconds).</value>
-        public int DurationOfBreak { get; } = DefaultBreakDuration;
+        public int DurationOfBreak { get; }
+
         public const int LowBreakDuration = 500; // 0.5 seconds
         public const int DefaultBreakDuration = 5_000; // 5 seconds
 
@@ -80,22 +81,6 @@ namespace Ocelot.Configuration
         /// An <see cref="int"/> value (no of exceptions).
         /// </value>
         public int ExceptionsAllowedBeforeBreaking { get; }
-
-        /// <summary>
-        /// The failure-success ratio that will cause the circuit to break/open. 
-        /// </summary>
-        /// <value>
-        /// An <see cref="double"/> ratio of exceptions/requests  (0.8 means 80% failed of all sampled executions).
-        /// </value>
-        public double FailureRatio { get; } = .8;
-
-        /// <summary>
-        /// The time period over which the failure-success ratio is calculated (in milliseconds).
-        /// </summary>
-        /// <value>
-        /// An <see cref="int"/> Time period in milliseconds.
-        /// </value>
-        public int SamplingDuration { get; } = 10000;
 
         /// <summary>
         /// The failure-success ratio that will cause the circuit to break/open. 
