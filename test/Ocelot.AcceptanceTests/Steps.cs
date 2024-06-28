@@ -27,6 +27,7 @@ using Ocelot.Tracing.Butterfly;
 using Ocelot.Tracing.OpenTracing;
 using Serilog;
 using Serilog.Core;
+using System.Diagnostics.Contracts;
 using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Security.Policy;
@@ -69,6 +70,13 @@ public class Steps : IDisposable
     {
         Routes = new(routes),
     };
+
+    protected static FileConfiguration GivenConfiguration(FileGlobalConfiguration globalConfig, params FileRoute[] routes)
+    {
+        var config = GivenConfiguration(routes);
+        config.GlobalConfiguration = globalConfig;
+        return config;
+    }
 
     public async Task ThenConfigShouldBe(FileConfiguration fileConfig)
     {
