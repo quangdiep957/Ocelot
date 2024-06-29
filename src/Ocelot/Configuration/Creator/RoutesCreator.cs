@@ -9,6 +9,7 @@ namespace Ocelot.Configuration.Creator
         private readonly IClaimsToThingCreator _claimsToThingCreator;
         private readonly IAuthenticationOptionsCreator _authOptionsCreator;
         private readonly IUpstreamTemplatePatternCreator _upstreamTemplatePatternCreator;
+        private readonly IUpstreamHeaderTemplatePatternCreator _upstreamHeaderTemplatePatternCreator;
         private readonly IRequestIdKeyCreator _requestIdKeyCreator;
         private readonly IQoSOptionsCreator _qosOptionsCreator;
         private readonly IRouteOptionsCreator _fileRouteOptionsCreator;
@@ -20,6 +21,8 @@ namespace Ocelot.Configuration.Creator
         private readonly IRouteKeyCreator _routeKeyCreator;
         private readonly ISecurityOptionsCreator _securityOptionsCreator;
         private readonly IVersionCreator _versionCreator;
+        private readonly IVersionPolicyCreator _versionPolicyCreator;
+        private readonly IMetadataCreator _metadataCreator;
 
         public RoutesCreator(
             IClaimsToThingCreator claimsToThingCreator,
@@ -36,7 +39,10 @@ namespace Ocelot.Configuration.Creator
             ILoadBalancerOptionsCreator loadBalancerOptionsCreator,
             IRouteKeyCreator routeKeyCreator,
             ISecurityOptionsCreator securityOptionsCreator,
-            IVersionCreator versionCreator)
+            IVersionCreator versionCreator,
+            IVersionPolicyCreator versionPolicyCreator,
+            IUpstreamHeaderTemplatePatternCreator upstreamHeaderTemplatePatternCreator,
+            IMetadataCreator metadataCreator)
         {
             _routeKeyCreator = routeKeyCreator;
             _loadBalancerOptionsCreator = loadBalancerOptionsCreator;
@@ -54,6 +60,9 @@ namespace Ocelot.Configuration.Creator
             _loadBalancerOptionsCreator = loadBalancerOptionsCreator;
             _securityOptionsCreator = securityOptionsCreator;
             _versionCreator = versionCreator;
+            _versionPolicyCreator = versionPolicyCreator;
+            _upstreamHeaderTemplatePatternCreator = upstreamHeaderTemplatePatternCreator;
+            _metadataCreator = metadataCreator;
         }
 
         public List<Route> Create(FileConfiguration fileConfiguration)
@@ -103,7 +112,11 @@ namespace Ocelot.Configuration.Creator
 
             var downstreamHttpVersion = _versionCreator.Create(fileRoute.DownstreamHttpVersion);
 
+            var downstreamHttpVersionPolicy = _versionPolicyCreator.Create(fileRoute.DownstreamHttpVersionPolicy);
+
             var cacheOptions = _cacheOptionsCreator.Create(fileRoute.FileCacheOptions, globalConfiguration, fileRoute.UpstreamPathTemplate, fileRoute.UpstreamHttpMethod);
+
+            var metadata = _metadataCreator.Create(fileRoute.Metadata, globalConfiguration);
 
             var route = new DownstreamRouteBuilder()
                 .WithKey(fileRoute.Key)
@@ -140,7 +153,9 @@ namespace Ocelot.Configuration.Creator
                 .WithDangerousAcceptAnyServerCertificateValidator(fileRoute.DangerousAcceptAnyServerCertificateValidator)
                 .WithSecurityOptions(securityOptions)
                 .WithDownstreamHttpVersion(downstreamHttpVersion)
+                .WithDownstreamHttpVersionPolicy(downstreamHttpVersionPolicy)
                 .WithDownStreamHttpMethod(fileRoute.DownstreamHttpMethod)
+                .WithMetadata(metadata)
                 .Build();
 
             return route;
@@ -149,12 +164,14 @@ namespace Ocelot.Configuration.Creator
         private Route SetUpRoute(FileRoute fileRoute, DownstreamRoute downstreamRoutes)
         {
             var upstreamTemplatePattern = _upstreamTemplatePatternCreator.Create(fileRoute);
+            var upstreamHeaderTemplates = _upstreamHeaderTemplatePatternCreator.Create(fileRoute);
 
             var route = new RouteBuilder()
                 .WithUpstreamHttpMethod(fileRoute.UpstreamHttpMethod)
                 .WithUpstreamPathTemplate(upstreamTemplatePattern)
                 .WithDownstreamRoute(downstreamRoutes)
                 .WithUpstreamHost(fileRoute.UpstreamHost)
+                .WithUpstreamHeaders(upstreamHeaderTemplates)
                 .Build();
 
             return route;

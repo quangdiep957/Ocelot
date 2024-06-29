@@ -116,6 +116,7 @@ namespace Ocelot.DependencyInjection
             Services.TryAddSingleton<IOptionsMonitor<IInternalConfiguration>, OcelotConfigurationMonitor>();
 
             Services.AddOcelotCache();
+            Services.AddOcelotMetadata();
             Services.AddOcelotMessageInvokerPool();
 
             // See this for why we register this as singleton:
@@ -137,11 +138,15 @@ namespace Ocelot.DependencyInjection
             Services.TryAddSingleton<IQoSFactory, QoSFactory>();
             Services.TryAddSingleton<IExceptionToErrorMapper, HttpExceptionToErrorMapper>();
             Services.TryAddSingleton<IVersionCreator, HttpVersionCreator>();
+            Services.TryAddSingleton<IVersionPolicyCreator, HttpVersionPolicyCreator>();
             Services.TryAddSingleton<IWebSocketsFactory, WebSocketsFactory>();
 
             // Add security
             Services.TryAddSingleton<ISecurityOptionsCreator, SecurityOptionsCreator>();
             Services.TryAddSingleton<ISecurityPolicy, IPSecurityPolicy>();
+
+            // Features
+            Services.AddHeaderRouting();
 
             // Add ASP.NET services
             var assembly = typeof(FileConfigurationController).GetTypeInfo().Assembly;
