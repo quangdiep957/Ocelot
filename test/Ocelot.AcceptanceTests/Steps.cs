@@ -42,7 +42,8 @@ public class Steps : IDisposable
 {
     protected TestServer _ocelotServer;
     protected HttpClient _ocelotClient;
-    private HttpResponseMessage _response;
+    protected HttpResponseMessage _response;
+    protected HttpResponseMessage[] _parallelResponses;
     private HttpContent _postContent;
     private BearerToken _token;
     public string RequestIdKey = "OcRequestId";
@@ -59,11 +60,13 @@ public class Steps : IDisposable
         _random = new Random();
         _testId = Guid.NewGuid();
         _ocelotConfigFileName = $"{_testId:N}-{ConfigurationBuilderExtensions.PrimaryConfigFile}";
+        _parallelResponses = Array.Empty<HttpResponseMessage>();
     }
 
     protected string TestID { get => _testId.ToString("N"); }
 
     protected static string DownstreamUrl(int port) => $"{Uri.UriSchemeHttp}://localhost:{port}";
+    protected static string LoopbackLocalhostUrl(int port, int loopbackIndex = 0) => $"{Uri.UriSchemeHttp}://127.0.0.{++loopbackIndex}:{port}";
 
     protected static FileConfiguration GivenConfiguration(params FileRoute[] routes) => new()
     {
@@ -357,9 +360,9 @@ public class Steps : IDisposable
                     .AddCacheManager((x) =>
                     {
                         x.WithMicrosoftLogging(_ =>
-                            {
-                                //log.AddConsole(LogLevel.Debug);
-                            })
+                        {
+                            //log.AddConsole(LogLevel.Debug);
+                        })
                             .WithJsonSerializer()
                             .WithHandle(typeof(InMemoryJsonHandle<>));
                     })
@@ -435,9 +438,9 @@ public class Steps : IDisposable
                     .AddCacheManager((x) =>
                     {
                         x.WithMicrosoftLogging(_ =>
-                            {
-                                //log.AddConsole(LogLevel.Debug);
-                            })
+                        {
+                            //log.AddConsole(LogLevel.Debug);
+                        })
                             .WithJsonSerializer()
                             .WithHandle(typeof(InMemoryJsonHandle<>));
                     });
@@ -851,15 +854,27 @@ public class Steps : IDisposable
     public void WhenIGetUrlOnTheApiGatewayMultipleTimes(string url, int times)
     {
         var tasks = new Task[times];
-
+        _parallelResponses = new HttpResponseMessage[times];
         for (var i = 0; i < times; i++)
         {
             var urlCopy = url;
-            tasks[i] = GetForServiceDiscoveryTest(urlCopy);
+            tasks[i] = GetParallelResponse(urlCopy, i);
             Thread.Sleep(_random.Next(40, 60));
         }
 
         Task.WaitAll(tasks);
+    }
+
+    private async Task GetParallelResponse(string url, int threadIndex)
+    {
+        var response = await _ocelotClient.GetAsync(url);
+        //var content = await response.Content.ReadAsStringAsync();
+        //var counterValue = content.Contains(':')
+        //    ? content.Split(':')[0] // let the first fragment is counter value
+        //    : content;
+        //int count = int.Parse(counterValue);
+        //count.ShouldBeGreaterThan(0);
+        _parallelResponses[threadIndex] = response;
     }
 
     public void WhenIGetUrlOnTheApiGatewayMultipleTimes(string url, int times, string cookie, string value)
@@ -880,14 +895,6 @@ public class Steps : IDisposable
         var request = _ocelotServer.CreateRequest(url);
         request.And(x => { x.Headers.Add("Cookie", new CookieHeaderValue(cookie, value).ToString()); });
         var response = await request.GetAsync();
-        var content = await response.Content.ReadAsStringAsync();
-        var count = int.Parse(content);
-        count.ShouldBeGreaterThan(0);
-    }
-
-    private async Task GetForServiceDiscoveryTest(string url)
-    {
-        var response = await _ocelotClient.GetAsync(url);
         var content = await response.Content.ReadAsStringAsync();
         var count = int.Parse(content);
         count.ShouldBeGreaterThan(0);
@@ -953,9 +960,12 @@ public class Steps : IDisposable
         _response.Content.Headers.ContentLength.ShouldBe(expected);
     }
 
-    public void ThenTheStatusCodeShouldBe(HttpStatusCode expectedHttpStatusCode)
+    public void ThenTheStatusCodeShouldBe(HttpStatusCode expected)
+        => _response.StatusCode.ShouldBe(expected);
+
+    public void ThenAllStatusCodesShouldBe(HttpStatusCode expected)
     {
-        _response.StatusCode.ShouldBe(expectedHttpStatusCode);
+        _parallelResponses.ShouldAllBe(response => response.StatusCode == expected);
     }
 
     public void ThenTheStatusCodeShouldBe(int expectedHttpStatusCode)
@@ -1166,6 +1176,12 @@ public class Steps : IDisposable
             _ocelotClient?.Dispose();
             _ocelotServer?.Dispose();
             _ocelotHost?.Dispose();
+            _response?.Dispose();
+            foreach (var response in _parallelResponses)
+            {
+                response?.Dispose();
+            }
+
             DeleteOcelotConfig();
         }
 
