@@ -126,7 +126,7 @@ namespace Ocelot.AcceptanceTests.ServiceDiscovery
             {
                 if (context.Request.Path.Value == $"/v1/health/service/{serviceName}")
                 {
-                    var json = JsonSerializer.Serialize(_serviceEntries, JsonSerializerOptionsExtensions.Web);
+                    var json = JsonSerializer.Serialize(_serviceEntries, JsonSerializerOptionsFactory.Web);
                     context.Response.Headers.Append("Content-Type", "application/json");
                     await context.Response.WriteAsync(json);
                 }

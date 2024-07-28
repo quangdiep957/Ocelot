@@ -427,7 +427,7 @@ public sealed class ConsulServiceDiscoveryTests : Steps, IDisposable
                 // Use the parsed service name to filter the registered Consul services
                 var serviceName = pathMatch.Groups["serviceName"].Value;
                 var services = _consulServices.Where(x => x.Service.Service == serviceName).ToList();
-                var json = JsonSerializer.Serialize(services, JsonSerializerOptionsExtensions.Web);
+                var json = JsonSerializer.Serialize(services, JsonSerializerOptionsFactory.Web);
                 json = json.Replace("\"Name\":", "\"Node\":");
                 context.Response.Headers.Append("Content-Type", "application/json");
                 await context.Response.WriteAsync(json);
@@ -437,7 +437,7 @@ public sealed class ConsulServiceDiscoveryTests : Steps, IDisposable
             if (context.Request.Path.Value == "/v1/catalog/nodes")
             {
                 _counterNodes++;
-                var json = JsonSerializer.Serialize(_consulNodes, JsonSerializerOptionsExtensions.Web);
+                var json = JsonSerializer.Serialize(_consulNodes, JsonSerializerOptionsFactory.Web);
                 context.Response.Headers.Append("Content-Type", "application/json");
                 await context.Response.WriteAsync(json);
             }

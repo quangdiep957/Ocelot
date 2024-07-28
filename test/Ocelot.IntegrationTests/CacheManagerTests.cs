@@ -113,7 +113,7 @@ namespace Ocelot.IntegrationTests
             var response = _httpClient.PostAsync(tokenUrl, content).Result;
             var responseContent = response.Content.ReadAsStringAsync().Result;
             response.EnsureSuccessStatusCode();
-            _token = JsonSerializer.Deserialize<BearerToken>(responseContent, JsonSerializerOptionsExtensions.Web);
+            _token = JsonSerializer.Deserialize<BearerToken>(responseContent, JsonSerializerOptionsFactory.Web);
             var configPath = $"{adminPath}/.well-known/openid-configuration";
             response = _httpClient.GetAsync(configPath).Result;
             response.EnsureSuccessStatusCode();
@@ -166,7 +166,7 @@ namespace Ocelot.IntegrationTests
         {
             var configurationPath = $"{Directory.GetCurrentDirectory()}/ocelot.json";
 
-            var jsonConfiguration = JsonSerializer.Serialize(fileConfiguration, JsonSerializerOptionsExtensions.Web);
+            var jsonConfiguration = JsonSerializer.Serialize(fileConfiguration, JsonSerializerOptionsFactory.Web);
 
             if (File.Exists(configurationPath))
             {

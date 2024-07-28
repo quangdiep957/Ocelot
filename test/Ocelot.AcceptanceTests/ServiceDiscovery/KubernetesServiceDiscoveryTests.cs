@@ -184,7 +184,7 @@ public sealed class KubernetesServiceDiscoveryTests : Steps, IDisposable
                     _receivedToken = values.First();
                 }
 
-                var json = JsonSerializer.Serialize(endpoints, JsonSerializerOptionsExtensions.Web);
+                var json = JsonSerializer.Serialize(endpoints, JsonSerializerOptionsFactory.Web);
                 context.Response.Headers.Append("Content-Type", "application/json");
                 await context.Response.WriteAsync(json);
             }

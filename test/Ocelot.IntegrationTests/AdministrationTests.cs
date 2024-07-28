@@ -347,12 +347,12 @@ namespace Ocelot.IntegrationTests
         {
             var ocelotJsonPath = $"{AppContext.BaseDirectory}ocelot.json";
             var resultText = File.ReadAllText(ocelotJsonPath);
-            var expectedText = JsonSerializer.Serialize(expected, JsonSerializerOptionsExtensions.WebWriteIndented);
+            var expectedText = JsonSerializer.Serialize(expected, JsonSerializerOptionsFactory.WebWriteIndented);
             resultText.ShouldBe(expectedText);
 
             var environmentSpecificPath = $"{AppContext.BaseDirectory}/ocelot.Production.json";
             resultText = File.ReadAllText(environmentSpecificPath);
-            expectedText = JsonSerializer.Serialize(expected, JsonSerializerOptionsExtensions.WebWriteIndented);
+            expectedText = JsonSerializer.Serialize(expected, JsonSerializerOptionsFactory.WebWriteIndented);
             resultText.ShouldBe(expectedText);
         }
 
@@ -533,7 +533,7 @@ namespace Ocelot.IntegrationTests
             var response = httpClient.PostAsync($"{url}/connect/token", content).Result;
             var responseContent = response.Content.ReadAsStringAsync().Result;
             response.EnsureSuccessStatusCode();
-            _token = JsonSerializer.Deserialize<BearerToken>(responseContent, JsonSerializerOptionsExtensions.Web);
+            _token = JsonSerializer.Deserialize<BearerToken>(responseContent, JsonSerializerOptionsFactory.Web);
         }
 
         private void GivenThereIsAnIdentityServerOn(string url, string apiName)
@@ -650,7 +650,7 @@ namespace Ocelot.IntegrationTests
 
         private void WhenIPostOnTheApiGateway(string url, FileConfiguration updatedConfiguration)
         {
-            var json = JsonSerializer.Serialize(updatedConfiguration, JsonSerializerOptionsExtensions.Web);
+            var json = JsonSerializer.Serialize(updatedConfiguration, JsonSerializerOptionsFactory.Web);
             var content = new StringContent(json);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             _response = _httpClient.PostAsync(url, content).Result;
@@ -659,7 +659,7 @@ namespace Ocelot.IntegrationTests
         private void ThenTheResponseShouldBe(List<string> expected)
         {
             var content = _response.Content.ReadAsStringAsync().Result;
-            var result = JsonSerializer.Deserialize<Regions>(content, JsonSerializerOptionsExtensions.Web);
+            var result = JsonSerializer.Deserialize<Regions>(content, JsonSerializerOptionsFactory.Web);
             result.Value.ShouldBe(expected);
         }
 
@@ -671,7 +671,7 @@ namespace Ocelot.IntegrationTests
 
         private void ThenTheResponseShouldBe(FileConfiguration expecteds)
         {
-            var response = JsonSerializer.Deserialize<FileConfiguration>(_response.Content.ReadAsStringAsync().Result, JsonSerializerOptionsExtensions.Web);
+            var response = JsonSerializer.Deserialize<FileConfiguration>(_response.Content.ReadAsStringAsync().Result, JsonSerializerOptionsFactory.Web);
 
             response.GlobalConfiguration.RequestIdKey.ShouldBe(expecteds.GlobalConfiguration.RequestIdKey);
             response.GlobalConfiguration.ServiceDiscoveryProvider.Scheme.ShouldBe(expecteds.GlobalConfiguration.ServiceDiscoveryProvider.Scheme);
@@ -715,7 +715,7 @@ namespace Ocelot.IntegrationTests
             var response = _httpClient.PostAsync(tokenUrl, content).Result;
             var responseContent = response.Content.ReadAsStringAsync().Result;
             response.EnsureSuccessStatusCode();
-            _token = JsonSerializer.Deserialize<BearerToken>(responseContent, JsonSerializerOptionsExtensions.Web);
+            _token = JsonSerializer.Deserialize<BearerToken>(responseContent, JsonSerializerOptionsFactory.Web);
             var configPath = $"{adminPath}/.well-known/openid-configuration";
             response = _httpClient.GetAsync(configPath).Result;
             response.EnsureSuccessStatusCode();
@@ -842,7 +842,7 @@ namespace Ocelot.IntegrationTests
         {
             var configurationPath = $"{Directory.GetCurrentDirectory()}/ocelot.json";
 
-            var jsonConfiguration = JsonSerializer.Serialize(fileConfiguration, JsonSerializerOptionsExtensions.Web);
+            var jsonConfiguration = JsonSerializer.Serialize(fileConfiguration, JsonSerializerOptionsFactory.Web);
 
             if (File.Exists(configurationPath))
             {

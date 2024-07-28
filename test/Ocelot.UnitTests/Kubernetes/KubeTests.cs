@@ -137,7 +137,7 @@ namespace Ocelot.UnitTests.Kubernetes
                                 _receivedToken = values.First();
                             }
 
-                            var json = JsonSerializer.Serialize(_endpointEntries, JsonSerializerOptionsExtensions.Web);
+                            var json = JsonSerializer.Serialize(_endpointEntries, JsonSerializerOptionsFactory.Web);
                             context.Response.Headers.Append("Content-Type", "application/json");
                             await context.Response.WriteAsync(json);
                         }
